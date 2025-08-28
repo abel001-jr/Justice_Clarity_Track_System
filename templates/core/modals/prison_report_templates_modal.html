@@ -1,0 +1,391 @@
+<!-- Prison Report Templates Modal -->
+<div class="modal fade" id="prisonReportTemplatesModal" tabindex="-1" aria-labelledby="prisonReportTemplatesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header prison-modal">
+                <h5 class="modal-title" id="prisonReportTemplatesModalLabel">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    Report Templates
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Template Categories -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-category="all">All</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="behavioral">Behavioral</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="medical">Medical</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="incident">Incident</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="program">Program</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Search -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="prisonTemplateSearch" placeholder="Search templates...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates Grid -->
+                <div class="row" id="prisonTemplatesGrid">
+                    <!-- Behavioral Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="behavioral">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-exclamation-triangle text-warning fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Behavioral Incident Report</h6>
+                                        <p class="card-text text-muted">Detailed report for behavioral incidents and disciplinary actions.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-warning">Behavioral</span>
+                                            <span class="badge bg-secondary">Incident</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="usePrisonTemplate('behavioral-incident')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewPrisonTemplate('behavioral-incident')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="medical">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-heart-pulse text-danger fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Medical Report</h6>
+                                        <p class="card-text text-muted">Comprehensive medical assessment and treatment documentation.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-danger">Medical</span>
+                                            <span class="badge bg-secondary">Assessment</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="usePrisonTemplate('medical-report')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewPrisonTemplate('medical-report')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Incident Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="incident">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-shield-exclamation text-danger fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Security Incident Report</h6>
+                                        <p class="card-text text-muted">Security incidents, violations, and safety concerns.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-danger">Security</span>
+                                            <span class="badge bg-secondary">Incident</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="usePrisonTemplate('security-incident')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewPrisonTemplate('security-incident')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Program Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="program">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-book text-success fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Program Progress Report</h6>
+                                        <p class="card-text text-muted">Progress tracking and participation in rehabilitation programs.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-success">Program</span>
+                                            <span class="badge bg-secondary">Progress</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="usePrisonTemplate('program-progress')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewPrisonTemplate('program-progress')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Templates -->
+                <div class="mt-4">
+                    <h6 class="text-secondary mb-3">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Recently Used Templates
+                    </h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                                Behavioral Incident Report
+                            </div>
+                            <small class="text-muted">Used 2 hours ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-heart-pulse text-danger me-2"></i>
+                                Medical Report
+                            </div>
+                            <small class="text-muted">Used yesterday</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-book text-success me-2"></i>
+                                Program Progress Report
+                            </div>
+                            <small class="text-muted">Used 3 days ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'prison:report_create' %}" class="btn btn-prison-primary">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    Create Custom Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.template-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--prison-primary);
+}
+
+.template-icon {
+    min-width: 50px;
+    text-align: center;
+}
+
+.template-tags {
+    margin-top: 0.5rem;
+}
+
+.template-tags .badge {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+#prisonReportTemplatesModal .list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+#prisonReportTemplatesModal .list-group-item:hover {
+    background: #f8f9fa;
+}
+
+#prisonReportTemplatesModal .btn-group .btn.active {
+    background: var(--prison-primary);
+    border-color: var(--prison-primary);
+    color: white;
+}
+</style>
+
+<script>
+// Template filtering
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryButtons = document.querySelectorAll('#prisonReportTemplatesModal [data-category]');
+    const searchInput = document.getElementById('prisonTemplateSearch');
+    const templateCards = document.querySelectorAll('#prisonTemplatesGrid [data-category]');
+    
+    // Category filtering
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.dataset.category;
+            
+            // Update active button
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            filterPrisonTemplates();
+        });
+    });
+    
+    // Search filtering
+    if (searchInput) {
+        searchInput.addEventListener('input', filterPrisonTemplates);
+    }
+    
+    function filterPrisonTemplates() {
+        const activeCategory = document.querySelector('#prisonReportTemplatesModal [data-category].active').dataset.category;
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        
+        templateCards.forEach(card => {
+            const category = card.dataset.category;
+            const title = card.querySelector('.card-title').textContent.toLowerCase();
+            const description = card.querySelector('.card-text').textContent.toLowerCase();
+            
+            const matchesCategory = activeCategory === 'all' || category === activeCategory;
+            const matchesSearch = searchTerm === '' || 
+                                title.includes(searchTerm) || 
+                                description.includes(searchTerm);
+            
+            card.style.display = matchesCategory && matchesSearch ? '' : 'none';
+        });
+    }
+});
+
+function usePrisonTemplate(templateId) {
+    // Redirect to report creation with template
+    window.location.href = `{% url 'prison:report_create' %}?template=${templateId}`;
+}
+
+function previewPrisonTemplate(templateId) {
+    // Show template preview
+    const templates = {
+        'behavioral-incident': {
+            title: 'Behavioral Incident Report',
+            content: `# Behavioral Incident Report
+
+## Inmate Information
+- **Inmate ID:** [Inmate ID]
+- **Inmate Name:** [Inmate Name]
+- **Date of Incident:** [Date]
+- **Time of Incident:** [Time]
+- **Location:** [Location]
+
+## Incident Description
+[Detailed description of the incident]
+
+## Witnesses
+[Names of witnesses or staff involved]
+
+## Immediate Actions Taken
+[Actions taken immediately after the incident]
+
+## Recommendations
+[Recommended disciplinary actions or follow-up]
+
+## Officer Signature
+[Officer Name and Badge Number]`
+        },
+        'medical-report': {
+            title: 'Medical Report',
+            content: `# Medical Report
+
+## Inmate Information
+- **Inmate ID:** [Inmate ID]
+- **Inmate Name:** [Inmate Name]
+- **Date of Assessment:** [Date]
+- **Time of Assessment:** [Time]
+
+## Medical Assessment
+[Detailed medical assessment]
+
+## Symptoms
+[Description of symptoms]
+
+## Treatment Provided
+[Treatment administered]
+
+## Follow-up Required
+[Any follow-up medical care needed]
+
+## Medical Officer Signature
+[Medical Officer Name and Credentials]`
+        }
+    };
+    
+    const template = templates[templateId];
+    if (template) {
+        showPrisonTemplatePreview(template.title, template.content);
+    }
+}
+
+function showPrisonTemplatePreview(title, content) {
+    const modal = new bootstrap.Modal(document.getElementById('prisonTemplatePreviewModal'));
+    
+    // Create preview modal if it doesn't exist
+    if (!document.getElementById('prisonTemplatePreviewModal')) {
+        const previewModal = document.createElement('div');
+        previewModal.className = 'modal fade';
+        previewModal.id = 'prisonTemplatePreviewModal';
+        previewModal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header prison-modal">
+                        <h5 class="modal-title">Template Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <pre id="prisonTemplateContent" style="white-space: pre-wrap; font-family: inherit;"></pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-prison-primary" onclick="usePrisonTemplateFromPreview()">Use Template</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(previewModal);
+    }
+    
+    document.getElementById('prisonTemplateContent').textContent = content;
+    modal.show();
+}
+</script>

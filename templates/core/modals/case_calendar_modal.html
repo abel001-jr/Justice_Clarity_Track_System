@@ -1,0 +1,685 @@
+<!-- Case Calendar Modal -->
+<div class="modal fade" id="caseCalendarModal" tabindex="-1" aria-labelledby="caseCalendarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="caseCalendarModalLabel">
+                    <i class="bi bi-calendar-week me-2"></i>
+                    Case Calendar
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Calendar Controls -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" onclick="changeView('month')">Month</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="changeView('week')">Week</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="changeView('day')">Day</button>
+                        </div>
+                        <div class="btn-group ms-3" role="group">
+                            <button type="button" class="btn btn-outline-secondary" onclick="previousPeriod()">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="today()">Today</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="nextPeriod()">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h5 id="currentPeriod" class="mb-0">January 2024</h5>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-body p-0">
+                                <div id="calendarContainer">
+                                    <!-- Calendar will be rendered here -->
+                                    <div class="calendar-month">
+                                        <div class="calendar-header">
+                                            <div class="calendar-day-header">Sun</div>
+                                            <div class="calendar-day-header">Mon</div>
+                                            <div class="calendar-day-header">Tue</div>
+                                            <div class="calendar-day-header">Wed</div>
+                                            <div class="calendar-day-header">Thu</div>
+                                            <div class="calendar-day-header">Fri</div>
+                                            <div class="calendar-day-header">Sat</div>
+                                        </div>
+                                        <div class="calendar-grid" id="calendarGrid">
+                                            <!-- Calendar days will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <!-- Upcoming Events -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-calendar-event me-2"></i>
+                                    Upcoming Events
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="upcomingEvents">
+                                    <!-- Upcoming events will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event Types Legend -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-tags me-2"></i>
+                                    Event Types
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="event-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color hearing"></span>
+                                        <span>Hearings</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color deadline"></span>
+                                        <span>Deadlines</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color sentencing"></span>
+                                        <span>Sentencing</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color report"></span>
+                                        <span>Reports Due</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color meeting"></span>
+                                        <span>Meetings</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Close
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="exportCalendar()">
+                    <i class="bi bi-download me-2"></i>
+                    Export Calendar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="addEvent()">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEventModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add Event
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addEventForm">
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Event Title</label>
+                        <input type="text" class="form-control" id="eventTitle" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="eventType" class="form-label">Event Type</label>
+                        <select class="form-select" id="eventType" name="type" required>
+                            <option value="">Select event type...</option>
+                            <option value="hearing">Hearing</option>
+                            <option value="deadline">Deadline</option>
+                            <option value="sentencing">Sentencing</option>
+                            <option value="report">Report Due</option>
+                            <option value="meeting">Meeting</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="eventDate" name="date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="eventTime" class="form-label">Time</label>
+                                <input type="time" class="form-control" id="eventTime" name="time">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="eventCase" class="form-label">Related Case (Optional)</label>
+                        <select class="form-select" id="eventCase" name="case_id">
+                            <option value="">Select case...</option>
+                            {% for case in my_cases %}
+                            <option value="{{ case.id }}">{{ case.case_number }} - {{ case.title|truncatechars:30 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="eventReminder" name="reminder">
+                            <label class="form-check-label" for="eventReminder">
+                                Set Reminder
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="addEventForm" class="btn btn-primary">Add Event</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.calendar-month {
+    width: 100%;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.calendar-day-header {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    min-height: 120px;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    position: relative;
+    background: white;
+}
+
+.calendar-day:hover {
+    background: #f8f9fa;
+}
+
+.calendar-day.other-month {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.calendar-day.today {
+    background: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.calendar-day-number {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-event {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-event.hearing {
+    background: #007bff;
+    color: white;
+}
+
+.calendar-event.deadline {
+    background: #dc3545;
+    color: white;
+}
+
+.calendar-event.sentencing {
+    background: #28a745;
+    color: white;
+}
+
+.calendar-event.report {
+    background: #ffc107;
+    color: #212529;
+}
+
+.calendar-event.meeting {
+    background: #6f42c1;
+    color: white;
+}
+
+.event-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 4px;
+}
+
+.legend-color.hearing {
+    background: #007bff;
+}
+
+.legend-color.deadline {
+    background: #dc3545;
+}
+
+.legend-color.sentencing {
+    background: #28a745;
+}
+
+.legend-color.report {
+    background: #ffc107;
+}
+
+.legend-color.meeting {
+    background: #6f42c1;
+}
+
+.upcoming-event {
+    padding: 0.5rem;
+    border-left: 3px solid #007bff;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 0 4px 4px 0;
+}
+
+.upcoming-event.deadline {
+    border-left-color: #dc3545;
+}
+
+.upcoming-event.sentencing {
+    border-left-color: #28a745;
+}
+
+.upcoming-event.report {
+    border-left-color: #ffc107;
+}
+
+.upcoming-event.meeting {
+    border-left-color: #6f42c1;
+}
+</style>
+
+<script>
+let currentDate = new Date();
+let currentView = 'month';
+let calendarEvents = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize calendar data only
+    loadCalendarEvents();
+    
+    // Don't render calendar yet - wait for modal to open
+    
+    // Handle add event form submission
+    const addEventForm = document.getElementById('addEventForm');
+    if (addEventForm) {
+        addEventForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const event = {
+                id: Date.now(),
+                title: formData.get('title'),
+                type: formData.get('type'),
+                date: formData.get('date'),
+                time: formData.get('time'),
+                case_id: formData.get('case_id'),
+                description: formData.get('description'),
+                reminder: formData.get('reminder') === 'on'
+            };
+            
+            calendarEvents.push(event);
+            renderCalendar();
+            loadUpcomingEvents();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addEventModal'));
+            modal.hide();
+            
+            // Reset form
+            this.reset();
+            
+            showAlert('Event added successfully!', 'success');
+        });
+    }
+});
+
+function loadCalendarEvents() {
+    // Simulate loading calendar events with current year dates
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    
+    calendarEvents = [
+        {
+            id: 1,
+            title: "Hearing - CR-2025-001",
+            type: "hearing",
+            date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-22`,
+            time: "10:00",
+            case_id: 1,
+            description: "Preliminary hearing for criminal case"
+        },
+        {
+            id: 2,
+            title: "Deadline - Submit Report",
+            type: "deadline",
+            date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-25`,
+            time: "17:00",
+            case_id: 2,
+            description: "Final report submission deadline"
+        },
+        {
+            id: 3,
+            title: "Sentencing - CR-2025-003",
+            type: "sentencing",
+            date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-28`,
+            time: "14:00",
+            case_id: 3,
+            description: "Sentencing hearing"
+        },
+        {
+            id: 4,
+            title: "Report Due - Monthly Summary",
+            type: "report",
+            date: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-31`,
+            time: "17:00",
+            case_id: null,
+            description: "Monthly judicial activity report"
+        }
+    ];
+}
+
+function renderCalendar() {
+    console.log('renderCalendar called');
+    const grid = document.getElementById('calendarGrid');
+    const currentPeriod = document.getElementById('currentPeriod');
+    
+    if (!grid) {
+        console.error('Calendar grid element not found!');
+        return;
+    }
+    
+    if (!currentPeriod) {
+        console.error('Current period element not found!');
+        return;
+    }
+    
+    console.log('Rendering calendar for view:', currentView, 'date:', currentDate);
+    
+    // Update period display
+    if (currentView === 'month') {
+        currentPeriod.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    } else if (currentView === 'week') {
+        const weekStart = getWeekStart(currentDate);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        currentPeriod.textContent = `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+    } else {
+        currentPeriod.textContent = currentDate.toLocaleDateString();
+    }
+    
+    if (currentView === 'month') {
+        renderMonthView(grid);
+    } else if (currentView === 'week') {
+        renderWeekView(grid);
+    } else {
+        renderDayView(grid);
+    }
+}
+
+function renderMonthView(grid) {
+    grid.innerHTML = '';
+    
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        if (date.getMonth() !== currentDate.getMonth()) {
+            dayElement.classList.add('other-month');
+        }
+        
+        if (date.getTime() === today.getTime()) {
+            dayElement.classList.add('today');
+        }
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = date.getDate();
+        dayElement.appendChild(dayNumber);
+        
+        // Add events for this day
+        const dayEvents = calendarEvents.filter(event => {
+            const eventDate = new Date(event.date);
+            return eventDate.getDate() === date.getDate() && 
+                   eventDate.getMonth() === date.getMonth() && 
+                   eventDate.getFullYear() === date.getFullYear();
+        });
+        
+        dayEvents.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = `calendar-event ${event.type}`;
+            eventElement.textContent = event.title;
+            eventElement.onclick = () => showEventDetails(event);
+            dayElement.appendChild(eventElement);
+        });
+        
+        grid.appendChild(dayElement);
+    }
+}
+
+function renderWeekView(grid) {
+    // Implementation for week view
+    grid.innerHTML = '<div class="text-center p-4">Week view implementation would go here</div>';
+}
+
+function renderDayView(grid) {
+    // Implementation for day view
+    grid.innerHTML = '<div class="text-center p-4">Day view implementation would go here</div>';
+}
+
+function getWeekStart(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+}
+
+function changeView(view) {
+    currentView = view;
+    renderCalendar();
+}
+
+function previousPeriod() {
+    if (currentView === 'month') {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+    } else if (currentView === 'week') {
+        currentDate.setDate(currentDate.getDate() - 7);
+    } else {
+        currentDate.setDate(currentDate.getDate() - 1);
+    }
+    renderCalendar();
+}
+
+function nextPeriod() {
+    if (currentView === 'month') {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+    } else if (currentView === 'week') {
+        currentDate.setDate(currentDate.getDate() + 7);
+    } else {
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    renderCalendar();
+}
+
+function today() {
+    currentDate = new Date();
+    renderCalendar();
+}
+
+function loadUpcomingEvents() {
+    const container = document.getElementById('upcomingEvents');
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    
+    const upcoming = calendarEvents.filter(event => {
+        const eventDate = new Date(event.date);
+        return eventDate >= today && eventDate <= nextWeek;
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    if (upcoming.length === 0) {
+        container.innerHTML = '<div class="text-muted">No upcoming events</div>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    upcoming.slice(0, 5).forEach(event => {
+        const eventElement = document.createElement('div');
+        eventElement.className = `upcoming-event ${event.type}`;
+        eventElement.innerHTML = `
+            <div class="fw-bold">${event.title}</div>
+            <small class="text-muted">${new Date(event.date).toLocaleDateString()}</small>
+        `;
+        eventElement.onclick = () => showEventDetails(event);
+        container.appendChild(eventElement);
+    });
+}
+
+function showEventDetails(event) {
+    const details = `
+        <strong>${event.title}</strong><br>
+        <strong>Type:</strong> ${event.type}<br>
+        <strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}<br>
+        ${event.time ? `<strong>Time:</strong> ${event.time}<br>` : ''}
+        ${event.description ? `<strong>Description:</strong> ${event.description}<br>` : ''}
+    `;
+    
+    showAlert(details, 'info');
+}
+
+function addEvent() {
+    const modal = new bootstrap.Modal(document.getElementById('addEventModal'));
+    modal.show();
+}
+
+// Add the missing showAlert function
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert into body
+    document.body.appendChild(alertDiv);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function exportCalendar() {
+    showAlert('Calendar export functionality would be implemented here.', 'info');
+}
+
+// Initialize calendar when modal opens
+document.addEventListener('DOMContentLoaded', function() {
+    const caseCalendarModal = document.getElementById('caseCalendarModal');
+    if (caseCalendarModal) {
+        caseCalendarModal.addEventListener('shown.bs.modal', function() {
+            console.log('Case Calendar Modal opened - initializing calendar...');
+            // Initialize calendar when modal is shown
+            currentDate = new Date();
+            currentView = 'month';
+            
+            // Small delay to ensure modal is fully rendered
+            setTimeout(() => {
+                console.log('Rendering calendar...');
+                renderCalendar();
+                loadUpcomingEvents();
+            }, 100);
+        });
+        
+        // Also handle hidden event to reset calendar
+        caseCalendarModal.addEventListener('hidden.bs.modal', function() {
+            // Reset calendar state when modal is closed
+            currentDate = new Date();
+            currentView = 'month';
+        });
+    }
+});
+</script>

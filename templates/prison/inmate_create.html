@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Inmate - Prison Management{% endblock %}
+{% block page_title %}Create New Inmate{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-person-plus me-2"></i>
+            Create New Inmate
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'prison:inmate_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Inmate List
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Inmate Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Personal Information -->
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth *</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">Gender *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                    <option value="O">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="inmate_id" class="form-label">Inmate ID *</label>
+                                <input type="text" class="form-control" id="inmate_id" name="inmate_id" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="case_number" class="form-label">Case Number</label>
+                                <input type="text" class="form-control" id="case_number" name="case_number">
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone_number" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone_number" name="phone_number">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                        </div>
+
+                        <!-- Legal Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="offense" class="form-label">Offense *</label>
+                                <input type="text" class="form-control" id="offense" name="offense" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sentence_length" class="form-label">Sentence Length</label>
+                                <input type="text" class="form-control" id="sentence_length" name="sentence_length" placeholder="e.g., 5 years">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="conviction_date" class="form-label">Conviction Date</label>
+                                <input type="date" class="form-control" id="conviction_date" name="conviction_date">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="expected_release_date" class="form-label">Expected Release Date</label>
+                                <input type="date" class="form-control" id="expected_release_date" name="expected_release_date">
+                            </div>
+                        </div>
+
+                        <!-- Medical Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="medical_conditions" class="form-label">Medical Conditions</label>
+                                <textarea class="form-control" id="medical_conditions" name="medical_conditions" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="medications" class="form-label">Current Medications</label>
+                                <textarea class="form-control" id="medications" name="medications" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="allergies" class="form-label">Allergies</label>
+                                <input type="text" class="form-control" id="allergies" name="allergies">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="blood_type" class="form-label">Blood Type</label>
+                                <select class="form-select" id="blood_type" name="blood_type">
+                                    <option value="">Select Blood Type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="emergency_contact_name" class="form-label">Emergency Contact Name</label>
+                                <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="emergency_contact_phone" class="form-label">Emergency Contact Phone</label>
+                                <input type="tel" class="form-control" id="emergency_contact_phone" name="emergency_contact_phone">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="emergency_contact_relationship" class="form-label">Relationship to Emergency Contact</label>
+                            <input type="text" class="form-control" id="emergency_contact_relationship" name="emergency_contact_relationship">
+                        </div>
+
+                        <!-- Status and Assignment -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Status *</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="transferred">Transferred</option>
+                                    <option value="released">Released</option>
+                                    <option value="medical">Medical</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="assigned_officer" class="form-label">Assigned Officer</label>
+                                <select class="form-select" id="assigned_officer" name="assigned_officer">
+                                    <option value="">Select Officer</option>
+                                    {% for officer in officers %}
+                                        <option value="{{ officer.id }}">{{ officer.get_full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+                        </div>
+
+                        <!-- Photo Upload -->
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Inmate Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                            <div class="form-text">Upload a clear photo of the inmate (JPG, PNG, max 5MB)</div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Create Inmate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'prison:inmate_list' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-list me-2"></i>
+                            View All Inmates
+                        </a>
+                        <a href="{% url 'prison:report_create' %}" class="btn btn-outline-warning">
+                            <i class="bi bi-file-earmark-plus me-2"></i>
+                            Create Report
+                        </a>
+                        <a href="{% url 'prison:visitor_create' %}" class="btn btn-outline-info">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Log Visitor
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            All fields marked with * are required
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Ensure accurate personal information
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Upload a clear, recent photo
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Verify all contact information
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Review medical information carefully
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate inmate ID if not provided
+    const inmateIdField = document.getElementById('inmate_id');
+    if (inmateIdField && !inmateIdField.value) {
+        const timestamp = Date.now().toString().slice(-6);
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        inmateIdField.value = `INM${timestamp}${random}`;
+    }
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+        }
+    });
+
+    // Remove validation styling on input
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+});
+</script>
+{% endblock %}

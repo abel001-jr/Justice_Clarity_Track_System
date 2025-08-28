@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Officer Profile - {{ user.get_full_name }} - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Officer Profile
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:officer_profile_edit' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-2"></i>
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Profile Information -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person me-2"></i>
+                                Personal Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Full Name:</strong> {{ user.get_full_name|default:"Not provided" }}</p>
+                                    <p><strong>Username:</strong> {{ user.username }}</p>
+                                    <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+                                    <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Last Login:</strong> {{ user.last_login|date:"F j, Y g:i A"|default:"Never" }}</p>
+                                    <p><strong>Staff Status:</strong> 
+                                        <span class="badge bg-{% if user.is_staff %}success{% else %}secondary{% endif %}">
+                                            {% if user.is_staff %}Staff Member{% else %}Regular User{% endif %}
+                                        </span>
+                                    </p>
+                                    <p><strong>Active Status:</strong> 
+                                        <span class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-graph-up me-2"></i>
+                                Work Statistics
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3">
+                                        <h3 class="text-primary">{{ assigned_inmates_count }}</h3>
+                                        <p class="text-muted mb-0">Assigned Inmates</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3">
+                                        <h3 class="text-success">{{ recent_reports.count }}</h3>
+                                        <p class="text-muted mb-0">Reports Submitted</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="border rounded p-3">
+                                        <h3 class="text-warning">{{ recent_visits.count }}</h3>
+                                        <p class="text-muted mb-0">Visits Authorized</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-activity me-2"></i>
+                                Recent Activity
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="activityTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">
+                                        Recent Reports
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="visits-tab" data-bs-toggle="tab" data-bs-target="#visits" type="button" role="tab">
+                                        Recent Visits
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content mt-3" id="activityTabsContent">
+                                <div class="tab-pane fade show active" id="reports" role="tabpanel">
+                                    {% if recent_reports %}
+                                        <div class="list-group list-group-flush">
+                                            {% for report in recent_reports %}
+                                                <div class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <div class="ms-2 me-auto">
+                                                        <div class="fw-bold">{{ report.title }}</div>
+                                                        <small class="text-muted">
+                                                            {{ report.inmate.get_full_name }} - {{ report.get_report_type_display }}
+                                                        </small>
+                                                    </div>
+                                                    <span class="badge bg-{% if report.priority == 'urgent' %}danger{% elif report.priority == 'high' %}warning{% elif report.priority == 'medium' %}info{% else %}secondary{% endif %} rounded-pill">
+                                                        {{ report.get_priority_display }}
+                                                    </span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted text-center py-3">No recent reports found.</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="tab-pane fade" id="visits" role="tabpanel">
+                                    {% if recent_visits %}
+                                        <div class="list-group list-group-flush">
+                                            {% for visit in recent_visits %}
+                                                <div class="list-group-item d-flex justify-content-between align-items-start">
+                                                    <div class="ms-2 me-auto">
+                                                        <div class="fw-bold">{{ visit.visitor_name }}</div>
+                                                        <small class="text-muted">
+                                                            {{ visit.inmate.get_full_name }} - {{ visit.get_visit_type_display }}
+                                                        </small>
+                                                    </div>
+                                                    <span class="badge bg-{% if visit.is_approved %}success{% else %}danger{% endif %} rounded-pill">
+                                                        {% if visit.is_approved %}Approved{% else %}Pending{% endif %}
+                                                    </span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted text-center py-3">No recent visits found.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Quick Actions -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-lightning me-2"></i>
+                                Quick Actions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'prison:inmate_list' %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-people me-2"></i>
+                                    View All Inmates
+                                </a>
+                                <a href="{% url 'prison:report_create' %}" class="btn btn-outline-info">
+                                    <i class="bi bi-file-plus me-2"></i>
+                                    Create Report
+                                </a>
+                                <a href="{% url 'prison:visitor_create' %}" class="btn btn-outline-warning">
+                                    <i class="bi bi-person-plus me-2"></i>
+                                    Log Visit
+                                </a>
+                                <a href="{% url 'prison:program_create' %}" class="btn btn-outline-success">
+                                    <i class="bi bi-mortarboard me-2"></i>
+                                    Create Program
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Tips -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                Profile Tips
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Keep your profile information current
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Regularly update inmate reports
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Monitor assigned inmates closely
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Document all significant activities
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- System Information -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-gear me-2"></i>
+                                System Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <small class="text-muted">
+                                <strong>User ID:</strong> {{ user.id }}<br>
+                                <strong>Account Type:</strong> Prison Officer<br>
+                                <strong>Access Level:</strong> 
+                                {% if user.is_superuser %}Superuser{% elif user.is_staff %}Staff{% else %}Regular{% endif %}<br>
+                                <strong>Last Updated:</strong> {{ user.date_joined|date:"M j, Y" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+<!-- Prison Officer Navigation -->
+<div class="nav-section">
+    <h6 class="nav-section-title">Inmate Management</h6>
+    <div class="nav-item">
+        <a href="{% url 'core:prison_officer_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'prison_officer_dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>
+            Dashboard Overview
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:inmate_list' %}" class="nav-link {% if 'inmate_list' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-people"></i>
+            All Inmates
+            {% if total_inmates > 0 %}
+                <span class="badge bg-primary ms-auto">{{ total_inmates }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:inmate_list' %}?status=active" class="nav-link {% if 'inmate_list' in request.resolver_match.url_name and 'active' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-person-check"></i>
+            Active Inmates
+            {% if active_inmates > 0 %}
+                <span class="badge bg-success ms-auto">{{ active_inmates }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:inmate_list' %}?status=medical" class="nav-link {% if 'inmate_list' in request.resolver_match.url_name and 'medical' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-heart-pulse"></i>
+            Medical Cases
+            {% if medical_cases > 0 %}
+                <span class="badge bg-warning ms-auto">{{ medical_cases }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:inmate_list' %}?status=disciplinary" class="nav-link {% if 'inmate_list' in request.resolver_match.url_name and 'disciplinary' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-exclamation-triangle"></i>
+            Disciplinary Cases
+            {% if disciplinary_cases > 0 %}
+                <span class="badge bg-danger ms-auto">{{ disciplinary_cases }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Reports & Documentation</h6>
+    <div class="nav-item">
+        <a href="{% url 'prison:report_list' %}" class="nav-link {% if 'report_list' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-file-text"></i>
+            All Reports
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:report_list' %}?priority=urgent" class="nav-link {% if 'report_list' in request.resolver_match.url_name and 'urgent' in request.GET.priority %}active{% endif %}">
+            <i class="bi bi-exclamation-triangle"></i>
+            Urgent Reports
+            {% if urgent_reports > 0 %}
+                <span class="badge bg-danger ms-auto">{{ urgent_reports }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:report_list' %}?status=pending" class="nav-link {% if 'report_list' in request.resolver_match.url_name and 'pending' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-clock-history"></i>
+            Pending Reports
+            {% if pending_reports > 0 %}
+                <span class="badge bg-warning ms-auto">{{ pending_reports }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#prisonReportTemplatesModal">
+            <i class="bi bi-file-earmark-plus"></i>
+            Report Templates
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Visitor Management</h6>
+    <div class="nav-item">
+        <a href="{% url 'prison:visitor_list' %}" class="nav-link {% if 'visitor_list' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-person-check"></i>
+            All Visitors
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:visitor_list' %}?status=scheduled" class="nav-link {% if 'visitor_list' in request.resolver_match.url_name and 'scheduled' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-calendar-check"></i>
+            Scheduled Visits
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#prisonVisitorModal">
+            <i class="bi bi-person-plus"></i>
+            Log Visitor
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Programs & Activities</h6>
+    <div class="nav-item">
+        <a href="{% url 'prison:program_list' %}" class="nav-link {% if 'program_list' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar-event"></i>
+            All Programs
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#prisonProgramModal">
+            <i class="bi bi-calendar-plus"></i>
+            Add Program
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Release Management</h6>
+    <div class="nav-item">
+        <a href="{% url 'prison:release_list' %}" class="nav-link {% if 'release_list' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-door-open"></i>
+            Release List
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'prison:release_create' %}" class="nav-link">
+            <i class="bi bi-calendar-plus"></i>
+            Schedule Release
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Quick Actions</h6>
+    <div class="nav-item">
+        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#prisonReportModal">
+            <i class="bi bi-file-earmark-plus"></i>
+            Submit Report
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#prisonUrgentReportModal">
+            <i class="bi bi-exclamation-triangle"></i>
+            Urgent Report
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#prisonQuickActionsModal">
+            <i class="bi bi-lightning-charge"></i>
+            Quick Actions
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">User</h6>
+    <div class="nav-item">
+        <a href="{% url 'prison:officer_profile' %}" class="nav-link {% if 'officer_profile' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-person"></i>
+            Profile
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'core:logout' %}" class="nav-link">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+        </a>
+    </div>
+</div>

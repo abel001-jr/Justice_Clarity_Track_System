@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Evidence - {{ case.case_number }}{% endblock %}
+
+{% block page_title %}Add Evidence{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Add Evidence</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:evidence_list' case.id %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Evidence
+                    </a>
+                </div>
+            </div>
+
+            <!-- Case Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Case Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Case Number:</strong> {{ case.case_number }}</p>
+                                    <p><strong>Case Type:</strong> {{ case.get_case_type_display }}</p>
+                                    <p><strong>Title:</strong> {{ case.title }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-{% if case.status == 'pending' %}warning{% elif case.status == 'active' %}primary{% elif case.status == 'closed' %}success{% else %}secondary{% endif %}">
+                                            {{ case.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Priority:</strong> 
+                                        <span class="badge bg-{% if case.priority == 'high' %}danger{% elif case.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                            {{ case.get_priority_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Filing Date:</strong> {{ case.filing_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Form -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Evidence Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data" id="evidenceForm">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="evidence_type" class="form-label">Evidence Type</label>
+                                            <select class="form-select" id="evidence_type" name="evidence_type" required>
+                                                <option value="">Select evidence type...</option>
+                                                <option value="document">Document</option>
+                                                <option value="physical">Physical Evidence</option>
+                                                <option value="digital">Digital Evidence</option>
+                                                <option value="photograph">Photograph</option>
+                                                <option value="video">Video/Audio</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="submission_date" class="form-label">Submission Date</label>
+                                            <input type="date" class="form-control" id="submission_date" name="submission_date" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Evidence Title</label>
+                                    <input type="text" class="form-control" id="title" name="title" placeholder="Brief title for the evidence" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Detailed description of the evidence..." required></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="source" class="form-label">Source</label>
+                                            <input type="text" class="form-control" id="source" name="source" placeholder="Where was this evidence obtained?">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="chain_of_custody" class="form-label">Chain of Custody</label>
+                                            <input type="text" class="form-control" id="chain_of_custody" name="chain_of_custody" placeholder="Who has handled this evidence?">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="file_upload" class="form-label">File Upload</label>
+                                            <input type="file" class="form-control" id="file_upload" name="file_upload" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mp3">
+                                            <div class="form-text">Upload supporting files (optional)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="reference_number" class="form-label">Reference Number</label>
+                                            <input type="text" class="form-control" id="reference_number" name="reference_number" placeholder="External reference number if applicable">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Additional Notes</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional information or observations..."></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Evidence Priority</label>
+                                    <select class="form-select" id="priority" name="priority">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="critical">Critical</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'court:evidence_list' case.id %}" class="btn btn-secondary me-md-2">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>Add Evidence
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Guidelines -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Evidence Submission Guidelines</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Document Evidence</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Use clear, legible copies</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Include all relevant pages</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Maintain original formatting</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Physical Evidence</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Document condition clearly</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Include measurements if applicable</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Note any damage or wear</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>Digital Evidence</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Ensure file integrity</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Include metadata when possible</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Use appropriate file formats</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Photographic Evidence</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>High resolution images</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Include scale references</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Multiple angles if needed</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default submission date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('submission_date').value = today;
+    
+    // Handle form submission
+    document.getElementById('evidenceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const evidenceType = document.getElementById('evidence_type').value;
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        
+        if (!evidenceType) {
+            alert('Please select an evidence type');
+            return;
+        }
+        
+        if (!title) {
+            alert('Please provide an evidence title');
+            return;
+        }
+        
+        if (!description) {
+            alert('Please provide a description');
+            return;
+        }
+        
+        // Submit the form
+        this.submit();
+    });
+    
+    // File upload validation
+    document.getElementById('file_upload').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                alert('File size must be less than 10MB');
+                this.value = '';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

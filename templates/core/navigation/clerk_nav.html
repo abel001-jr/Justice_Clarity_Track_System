@@ -1,0 +1,126 @@
+<!-- Clerk Navigation - Workflow-Based -->
+<div class="nav-section">
+    <h6 class="nav-section-title">Dashboard</h6>
+    <div class="nav-item">
+        <a href="{% url 'core:clerk_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'clerk_dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>
+            Overview
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Case Registration</h6>
+    <div class="nav-item">
+        <a href="{% url 'court:case_templates' %}" class="nav-link {% if 'case_templates' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-file-earmark-text"></i>
+            Case Templates
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case_list' in request.resolver_match.url_name and not request.GET.status %}active{% endif %}">
+            <i class="bi bi-folder"></i>
+            All Cases
+            {% if total_cases > 0 %}
+                <span class="badge bg-primary ms-auto">{{ total_cases }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:case_list' %}?status=pending" class="nav-link {% if 'case_list' in request.resolver_match.url_name and 'pending' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-clock-history"></i>
+            Pending Assignment
+            {% if pending_cases > 0 %}
+                <span class="badge bg-warning ms-auto">{{ pending_cases }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Case Assignment</h6>
+    <div class="nav-item">
+        <a href="{% url 'court:case_list' %}?status=assigned" class="nav-link {% if 'case_list' in request.resolver_match.url_name and 'assigned' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-folder-check"></i>
+            Assigned Cases
+            {% if assigned_cases > 0 %}
+                <span class="badge bg-info ms-auto">{{ assigned_cases }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:case_list' %}?status=completed" class="nav-link {% if 'case_list' in request.resolver_match.url_name and 'completed' in request.GET.status %}active{% endif %}">
+            <i class="bi bi-check-circle"></i>
+            Completed Cases
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Hearing Coordination</h6>
+    <div class="nav-item">
+        <a href="{% url 'court:hearing_create' %}" class="nav-link {% if 'hearing_create' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar-plus"></i>
+            Schedule Hearing
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing_list' in request.resolver_match.url_name and not request.GET.date %}active{% endif %}">
+            <i class="bi bi-calendar-event"></i>
+            All Hearings
+            {% if upcoming_hearings|length > 0 %}
+                <span class="badge bg-info ms-auto">{{ upcoming_hearings|length }}</span>
+            {% endif %}
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:hearing_list' %}?date=today" class="nav-link {% if 'hearing_list' in request.resolver_match.url_name and 'today' in request.GET.date %}active{% endif %}">
+            <i class="bi bi-calendar-day"></i>
+            Today's Hearings
+            {% if total_hearings_today > 0 %}
+                <span class="badge bg-success ms-auto">{{ total_hearings_today }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Report Management</h6>
+    <div class="nav-item">
+        <a href="{% url 'court:report_create' %}" class="nav-link {% if 'report_create' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-file-earmark-text"></i>
+            Create Report
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report_list' in request.resolver_match.url_name and not request.GET.priority %}active{% endif %}">
+            <i class="bi bi-file-text"></i>
+            All Reports
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'court:report_list' %}?priority=urgent" class="nav-link {% if 'report_list' in request.resolver_match.url_name and 'urgent' in request.GET.priority %}active{% endif %}">
+            <i class="bi bi-exclamation-triangle"></i>
+            Urgent Reports
+            {% if urgent_reports|length > 0 %}
+                <span class="badge bg-danger ms-auto">{{ urgent_reports|length }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="nav-section">
+    <h6 class="nav-section-title">Administrative</h6>
+    <div class="nav-item">
+        <a href="{% url 'prison:inmate_list' %}" class="nav-link {% if 'inmate_list' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-building"></i>
+            Inmate Records
+        </a>
+    </div>
+    <div class="nav-item">
+        <a href="{% url 'core:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="bi bi-person"></i>
+            Profile
+        </a>
+    </div>
+</div>

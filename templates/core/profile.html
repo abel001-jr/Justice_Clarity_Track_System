@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - {{ user.get_full_name }} - Justice Clarity{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<hr>
+<div class="nav-item">
+    <a href="{% url 'core:profile' %}" class="nav-link active">
+        <i class="bi bi-person"></i>
+        Profile
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'core:logout' %}" class="nav-link">
+        <i class="bi bi-box-arrow-right"></i>
+        Logout
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Profile Header -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-circle me-2"></i>
+                        Profile Information
+                    </h5>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="editProfile()">
+                            <i class="bi bi-pencil me-1"></i>
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="profile-avatar mb-3">
+                                <i class="bi bi-person-circle" style="font-size: 4rem; color: #1e3a8a;"></i>
+                            </div>
+                            <h5 class="text-primary">{{ user.get_full_name|default:user.username }}</h5>
+                            <span class="badge bg-primary">{{ profile.get_role_display }}</span>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-muted">Username</label>
+                                        <p class="form-control-plaintext">{{ user.username }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-muted">Email</label>
+                                        <p class="form-control-plaintext">{{ user.email|default:"Not provided" }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-muted">Full Name</label>
+                                        <p class="form-control-plaintext">{{ user.get_full_name|default:"Not provided" }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-muted">Employee ID</label>
+                                        <p class="form-control-plaintext">{{ profile.employee_id }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-muted">Department</label>
+                                        <p class="form-control-plaintext">{{ profile.department|default:"Not assigned" }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-muted">Phone Number</label>
+                                        <p class="form-control-plaintext">{{ profile.phone_number|default:"Not provided" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Details -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Account Status
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Account Status:</span>
+                                {% if profile.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Member Since:</span>
+                                <span class="text-muted">{{ user.date_joined|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Last Login:</span>
+                                <span class="text-muted">{{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Profile Activity
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Profile Created:</span>
+                                <span class="text-muted">{{ profile.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Last Updated:</span>
+                                <span class="text-muted">{{ profile.updated_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Role:</span>
+                                <span class="badge bg-info">{{ profile.get_role_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'core:clerk_dashboard' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Go to Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'court:case_list' %}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-folder me-2"></i>
+                                View Cases
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'court:hearing_list' %}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-calendar me-2"></i>
+                                View Hearings
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'core:logout' %}" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-box-arrow-right me-2"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">
+                    <i class="bi bi-pencil me-2"></i>
+                    Edit Profile
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editProfileForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ profile.phone_number|default:'' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department</label>
+                        <input type="text" class="form-control" id="department" name="department" value="{{ profile.department|default:'' }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check me-2"></i>
+                        Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editProfile() {
+    const modal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+    modal.show();
+}
+
+// Handle form submission
+document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Updating...';
+    submitBtn.disabled = true;
+    
+    // Submit form data
+    const formData = new FormData(this);
+    
+    fetch('{% url "core:profile" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Show success message
+            showAlert('Profile updated successfully!', 'success');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            modal.hide();
+            
+            // Reload page to show updated data
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showAlert(data.message || 'Failed to update profile', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred while updating profile', 'danger');
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at the top of the content
+    const content = document.querySelector('.container-fluid');
+    content.insertBefore(alertDiv, content.firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

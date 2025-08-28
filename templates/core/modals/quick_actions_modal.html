@@ -1,0 +1,239 @@
+<!-- Quick Actions Modal -->
+<div class="modal fade" id="quickActionsModal" tabindex="-1" aria-labelledby="quickActionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header clerk-modal">
+                <h5 class="modal-title" id="quickActionsModalLabel">
+                    <i class="bi bi-lightning-charge me-2"></i>
+                    Quick Actions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Case Management -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-folder me-2"></i>
+                            Case Management
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('createCase')">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Create New Case
+                            </button>
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('assignJudge')">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Assign Judge to Case
+                            </button>
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('updateStatus')">
+                                <i class="bi bi-arrow-clockwise me-2"></i>
+                                Update Case Status
+                            </button>
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('searchCases')">
+                                <i class="bi bi-search me-2"></i>
+                                Search Cases
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Administrative -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-success mb-3">
+                            <i class="bi bi-gear me-2"></i>
+                            Administrative
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('scheduleHearing')">
+                                <i class="bi bi-calendar-plus me-2"></i>
+                                Schedule Hearing
+                            </button>
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('createReport')">
+                                <i class="bi bi-file-earmark-text me-2"></i>
+                                Create Report
+                            </button>
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('manageInmates')">
+                                <i class="bi bi-building me-2"></i>
+                                Manage Inmates
+                            </button>
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('viewCalendar')">
+                                <i class="bi bi-calendar-week me-2"></i>
+                                View Calendar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Communication -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-info mb-3">
+                            <i class="bi bi-chat-dots me-2"></i>
+                            Communication
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('sendNotification')">
+                                <i class="bi bi-bell me-2"></i>
+                                Send Notification
+                            </button>
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('emailReport')">
+                                <i class="bi bi-envelope me-2"></i>
+                                Email Report
+                            </button>
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('printDocument')">
+                                <i class="bi bi-printer me-2"></i>
+                                Print Document
+                            </button>
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('exportData')">
+                                <i class="bi bi-download me-2"></i>
+                                Export Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Research & Reference -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-warning mb-3">
+                            <i class="bi bi-book me-2"></i>
+                            Research & Reference
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('searchPrecedents')">
+                                <i class="bi bi-search me-2"></i>
+                                Search Precedents
+                            </button>
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('viewTemplates')">
+                                <i class="bi bi-file-earmark me-2"></i>
+                                View Templates
+                            </button>
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('legalResearch')">
+                                <i class="bi bi-journal-text me-2"></i>
+                                Legal Research
+                            </button>
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('statistics')">
+                                <i class="bi bi-graph-up me-2"></i>
+                                View Statistics
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Actions -->
+                <div class="mt-4">
+                    <h6 class="text-secondary mb-3">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Recent Actions
+                    </h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-plus-circle text-success me-2"></i>
+                                Created case CR-2024-001
+                            </div>
+                            <small class="text-muted">2 minutes ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-calendar-plus text-primary me-2"></i>
+                                Scheduled hearing for CR-2024-001
+                            </div>
+                            <small class="text-muted">15 minutes ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-person-plus text-info me-2"></i>
+                                Assigned Judge Smith to case CR-2023-045
+                            </div>
+                            <small class="text-muted">1 hour ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.quick-actions-modal .btn {
+    transition: all 0.2s ease;
+}
+
+.quick-actions-modal .btn:hover {
+    transform: translateX(4px);
+}
+
+#quickActionsModal .list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+#quickActionsModal .list-group-item:hover {
+    background: #f8f9fa;
+}
+</style>
+
+<script>
+function quickAction(action) {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('quickActionsModal'));
+    
+    switch (action) {
+        case 'createCase':
+            window.location.href = '{% url "court:case_create" %}';
+            break;
+        case 'assignJudge':
+            modal.hide();
+            setTimeout(() => {
+                const assignmentModal = new bootstrap.Modal(document.getElementById('caseAssignmentModal'));
+                assignmentModal.show();
+            }, 300);
+            break;
+        case 'scheduleHearing':
+            window.location.href = '{% url "court:hearing_create" %}';
+            break;
+        case 'createReport':
+            window.location.href = '{% url "court:report_create" %}';
+            break;
+        case 'manageInmates':
+            window.location.href = '{% url "prison:inmate_list" %}';
+            break;
+        case 'viewCalendar':
+            modal.hide();
+            setTimeout(() => {
+                const calendarModal = new bootstrap.Modal(document.getElementById('hearingCalendarModal'));
+                calendarModal.show();
+            }, 300);
+            break;
+        case 'sendNotification':
+            showAlert('Notification system will be implemented in the backend.', 'info');
+            break;
+        case 'emailReport':
+            showAlert('Email functionality will be implemented in the backend.', 'info');
+            break;
+        case 'printDocument':
+            showAlert('Print functionality will be implemented in the backend.', 'info');
+            break;
+        case 'exportData':
+            showAlert('Export functionality will be implemented in the backend.', 'info');
+            break;
+        case 'searchPrecedents':
+            showAlert('Precedent search will be implemented in the backend.', 'info');
+            break;
+        case 'viewTemplates':
+            modal.hide();
+            setTimeout(() => {
+                const templatesModal = new bootstrap.Modal(document.getElementById('reportTemplatesModal'));
+                templatesModal.show();
+            }, 300);
+            break;
+        case 'legalResearch':
+            showAlert('Legal research tools will be implemented in the backend.', 'info');
+            break;
+        case 'statistics':
+            showAlert('Statistics dashboard will be implemented in the backend.', 'info');
+            break;
+        default:
+            showAlert('Action not implemented yet.', 'warning');
+    }
+}
+</script>

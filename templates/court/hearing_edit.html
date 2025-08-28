@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Hearing - {{ hearing.case.case_number }}{% endblock %}
+
+{% block page_title %}Edit Hearing{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Edit Hearing</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:hearing_detail' hearing.id %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Hearing
+                    </a>
+                </div>
+            </div>
+
+            <!-- Current Hearing Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Current Hearing Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Hearing ID:</strong> <span class="badge bg-secondary">#{{ hearing.id }}</span></p>
+                                    <p><strong>Case Number:</strong> 
+                                        <a href="{% url 'court:case_detail' hearing.case.id %}">{{ hearing.case.case_number }}</a>
+                                    </p>
+                                    <p><strong>Case Title:</strong> {{ hearing.case.title }}</p>
+                                    <p><strong>Current Status:</strong> 
+                                        <span class="badge bg-{% if hearing.status == 'scheduled' %}primary{% elif hearing.status == 'in_progress' %}warning{% elif hearing.status == 'completed' %}success{% elif hearing.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                            {{ hearing.get_status_display }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Current Date:</strong> {{ hearing.scheduled_date|date:"M d, Y" }}</p>
+                                    <p><strong>Current Time:</strong> {{ hearing.scheduled_time|time:"H:i" }}</p>
+                                    <p><strong>Current Duration:</strong> {{ hearing.duration_minutes }} minutes</p>
+                                    <p><strong>Current Location:</strong> {{ hearing.location|default:"Not specified" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Hearing Form -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Update Hearing Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" id="hearingEditForm">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="hearing_type" class="form-label">Hearing Type</label>
+                                            <select class="form-select" id="hearing_type" name="hearing_type" required>
+                                                <option value="">Select hearing type...</option>
+                                                <option value="initial" {% if hearing.hearing_type == 'initial' %}selected{% endif %}>Initial Hearing</option>
+                                                <option value="pre_trial" {% if hearing.hearing_type == 'pre_trial' %}selected{% endif %}>Pre-Trial Hearing</option>
+                                                <option value="trial" {% if hearing.hearing_type == 'trial' %}selected{% endif %}>Trial</option>
+                                                <option value="sentencing" {% if hearing.hearing_type == 'sentencing' %}selected{% endif %}>Sentencing Hearing</option>
+                                                <option value="motion" {% if hearing.hearing_type == 'motion' %}selected{% endif %}>Motion Hearing</option>
+                                                <option value="status" {% if hearing.hearing_type == 'status' %}selected{% endif %}>Status Conference</option>
+                                                <option value="other" {% if hearing.hearing_type == 'other' %}selected{% endif %}>Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="status" class="form-label">Hearing Status</label>
+                                            <select class="form-select" id="status" name="status" required>
+                                                <option value="scheduled" {% if hearing.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                                                <option value="in_progress" {% if hearing.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                                <option value="completed" {% if hearing.status == 'completed' %}selected{% endif %}>Completed</option>
+                                                <option value="cancelled" {% if hearing.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                                <option value="postponed" {% if hearing.status == 'postponed' %}selected{% endif %}>Postponed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="scheduled_date" class="form-label">Scheduled Date</label>
+                                            <input type="date" class="form-control" id="scheduled_date" name="scheduled_date" value="{{ hearing.scheduled_date|date:'Y-m-d' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="scheduled_time" class="form-label">Scheduled Time</label>
+                                            <input type="time" class="form-control" id="scheduled_time" name="scheduled_time" value="{{ hearing.scheduled_time|time:'H:i' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="duration_minutes" class="form-label">Duration (minutes)</label>
+                                            <input type="number" class="form-control" id="duration_minutes" name="duration_minutes" value="{{ hearing.duration_minutes }}" min="15" max="480" required>
+                                            <div class="form-text">Duration between 15 minutes and 8 hours</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="location" class="form-label">Location</label>
+                                            <input type="text" class="form-control" id="location" name="location" value="{{ hearing.location|default:'' }}" placeholder="Courtroom, building, or address">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="judge" class="form-label">Assigned Judge</label>
+                                            <select class="form-select" id="judge" name="judge">
+                                                <option value="">Select a judge...</option>
+                                            </select>
+                                            <div class="form-text">Choose a judge to preside over this hearing</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="clerk" class="form-label">Assigned Clerk</label>
+                                            <select class="form-select" id="clerk" name="clerk">
+                                                <option value="">Select a clerk...</option>
+                                            </select>
+                                            <div class="form-text">Choose a clerk to assist with this hearing</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Hearing Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Brief description of the hearing purpose...">{{ hearing.description|default:'' }}</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Additional Notes</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes or instructions...">{{ hearing.notes|default:'' }}</textarea>
+                                </div>
+
+                                {% if hearing.status == 'completed' %}
+                                <div class="mb-3">
+                                    <label for="outcome" class="form-label">Hearing Outcome</label>
+                                    <textarea class="form-control" id="outcome" name="outcome" rows="4" placeholder="Summary of the hearing outcome and decisions made...">{{ hearing.outcome|default:'' }}</textarea>
+                                </div>
+                                {% endif %}
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'court:hearing_detail' hearing.id %}" class="btn btn-secondary me-md-2">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>Update Hearing
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hearing Guidelines -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Hearing Management Guidelines</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Scheduling Guidelines</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Allow sufficient time between hearings</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Consider judge availability and workload</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Account for case complexity</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Status Management</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Update status promptly</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Document any changes or delays</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Notify relevant parties of changes</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load available judges and clerks
+    loadJudges();
+    loadClerks();
+    
+    // Handle form submission
+    document.getElementById('hearingEditForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const hearingType = document.getElementById('hearing_type').value;
+        const scheduledDate = document.getElementById('scheduled_date').value;
+        const scheduledTime = document.getElementById('scheduled_time').value;
+        const duration = document.getElementById('duration_minutes').value;
+        
+        if (!hearingType) {
+            alert('Please select a hearing type');
+            return;
+        }
+        
+        if (!scheduledDate) {
+            alert('Please select a scheduled date');
+            return;
+        }
+        
+        if (!scheduledTime) {
+            alert('Please select a scheduled time');
+            return;
+        }
+        
+        if (!duration || duration < 15 || duration > 480) {
+            alert('Please enter a valid duration (15-480 minutes)');
+            return;
+        }
+        
+        // Submit the form
+        this.submit();
+    });
+    
+    // Show/hide outcome field based on status
+    document.getElementById('status').addEventListener('change', function() {
+        const outcomeField = document.getElementById('outcome').parentElement;
+        if (this.value === 'completed') {
+            outcomeField.style.display = 'block';
+        } else {
+            outcomeField.style.display = 'none';
+        }
+    });
+    
+    // Initial check for outcome field visibility
+    const statusSelect = document.getElementById('status');
+    const outcomeField = document.getElementById('outcome').parentElement;
+    if (statusSelect.value !== 'completed') {
+        outcomeField.style.display = 'none';
+    }
+});
+
+function loadJudges() {
+    fetch('{% url "court:get_judges" %}')
+        .then(response => response.json())
+        .then(data => {
+            const judgeSelect = document.getElementById('judge');
+            const currentJudgeId = '{{ hearing.judge.id|default:"" }}';
+            
+            if (data.judges && data.judges.length > 0) {
+                data.judges.forEach(judge => {
+                    const option = document.createElement('option');
+                    option.value = judge.id;
+                    option.textContent = judge.name;
+                    if (judge.id == currentJudgeId) {
+                        option.selected = true;
+                    }
+                    judgeSelect.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading judges:', error);
+        });
+}
+
+function loadClerks() {
+    // This would typically make an AJAX call to get available clerks
+    // For now, we'll populate with some sample data
+    const clerkSelect = document.getElementById('clerk');
+    const currentClerkId = '{{ hearing.clerk.id|default:"" }}';
+    
+    const sampleClerks = [
+        { id: 1, name: 'John Clerk' },
+        { id: 2, name: 'Jane Assistant' },
+        { id: 3, name: 'Bob Records' }
+    ];
+    
+    sampleClerks.forEach(clerk => {
+        const option = document.createElement('option');
+        option.value = clerk.id;
+        option.textContent = clerk.name;
+        if (clerk.id == currentClerkId) {
+            option.selected = true;
+        }
+        clerkSelect.appendChild(option);
+    });
+}
+</script>
+{% endblock %}

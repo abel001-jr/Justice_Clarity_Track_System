@@ -1,0 +1,593 @@
+<!-- Evidence Review Modal -->
+<div class="modal fade" id="evidenceReviewModal" tabindex="-1" aria-labelledby="evidenceReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="evidenceReviewModalLabel">
+                    <i class="bi bi-search me-2"></i>
+                    Evidence Review
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Case Selection -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-folder me-2"></i>
+                                    Select Case for Evidence Review
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <select class="form-select" id="evidenceCaseSelect">
+                                            <option value="">Choose a case to review evidence...</option>
+                                            {% for case in my_cases %}
+                                            <option value="{{ case.id }}" 
+                                                    data-case-number="{{ case.case_number }}"
+                                                    data-case-title="{{ case.title }}">
+                                                {{ case.case_number }} - {{ case.title|truncatechars:50 }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="button" class="btn btn-outline-info w-100" onclick="loadEvidence()">
+                                            <i class="bi bi-search me-2"></i>
+                                            Load Evidence
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evidence Display Area -->
+                <div id="evidenceDisplayArea" style="display: none;">
+                    <!-- Evidence Summary -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-file-earmark-text me-2"></i>
+                                        Evidence Summary
+                                    </h6>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="filterEvidence('all')">All</button>
+                                        <button class="btn btn-outline-primary" onclick="filterEvidence('document')">Documents</button>
+                                        <button class="btn btn-outline-primary" onclick="filterEvidence('photo')">Photos</button>
+                                        <button class="btn btn-outline-primary" onclick="filterEvidence('video')">Videos</button>
+                                        <button class="btn btn-outline-primary" onclick="filterEvidence('audio')">Audio</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="evidence-stat">
+                                                <div class="stat-number text-primary" id="totalEvidence">0</div>
+                                                <div class="stat-label">Total Items</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="evidence-stat">
+                                                <div class="stat-number text-success" id="admittedEvidence">0</div>
+                                                <div class="stat-label">Admitted</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="evidence-stat">
+                                                <div class="stat-number text-warning" id="pendingEvidence">0</div>
+                                                <div class="stat-label">Pending Review</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="evidence-stat">
+                                                <div class="stat-number text-danger" id="excludedEvidence">0</div>
+                                                <div class="stat-label">Excluded</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evidence List -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-list me-2"></i>
+                                        Evidence Items
+                                    </h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0" id="evidenceTable">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Type</th>
+                                                    <th>Submitted By</th>
+                                                    <th>Date</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="evidenceTableBody">
+                                                <!-- Evidence items will be loaded here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Evidence Details Panel -->
+                            <div class="card" id="evidenceDetailsPanel" style="display: none;">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Evidence Details
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="evidenceDetailsContent">
+                                        <!-- Evidence details will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Evidence Review Form -->
+                            <div class="card mt-3" id="evidenceReviewForm" style="display: none;">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        Review Decision
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="evidenceReviewFormElement">
+                                        <div class="mb-3">
+                                            <label for="evidenceStatus" class="form-label">Status</label>
+                                            <select class="form-select" id="evidenceStatus" name="status" required>
+                                                <option value="">Select status...</option>
+                                                <option value="admitted">Admitted</option>
+                                                <option value="excluded">Excluded</option>
+                                                <option value="pending">Pending Review</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="evidenceNotes" class="form-label">Review Notes</label>
+                                            <textarea class="form-control" id="evidenceNotes" name="notes" rows="3" 
+                                                      placeholder="Enter review notes and reasoning..."></textarea>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="evidenceWeight" class="form-label">Evidence Weight</label>
+                                            <select class="form-select" id="evidenceWeight" name="weight">
+                                                <option value="">Select weight...</option>
+                                                <option value="high">High - Strong evidence</option>
+                                                <option value="medium">Medium - Moderate evidence</option>
+                                                <option value="low">Low - Weak evidence</option>
+                                                <option value="irrelevant">Irrelevant</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-2"></i>
+                                                Submit Review
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chain of Custody -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-shield-check me-2"></i>
+                                        Chain of Custody
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline" id="custodyTimeline">
+                                        <!-- Chain of custody timeline will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="evidenceLoadingState" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading evidence data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Close
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="exportEvidenceReport()">
+                    <i class="bi bi-download me-2"></i>
+                    Export Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.evidence-stat {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.evidence-stat .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.evidence-stat .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    top: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #007bff;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+.evidence-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.evidence-item:hover {
+    background-color: #f8f9fa;
+}
+
+.evidence-item.selected {
+    background-color: #e3f2fd;
+}
+</style>
+
+<script>
+let currentEvidenceId = null;
+let evidenceData = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    const evidenceCaseSelect = document.getElementById('evidenceCaseSelect');
+    
+    evidenceCaseSelect.addEventListener('change', function() {
+        if (this.value) {
+            loadEvidence();
+        } else {
+            hideEvidenceDisplay();
+        }
+    });
+});
+
+function loadEvidence() {
+    const caseId = document.getElementById('evidenceCaseSelect').value;
+    if (!caseId) return;
+    
+    showLoadingState();
+    
+    // Simulate API call to load evidence
+    setTimeout(() => {
+        // Mock evidence data
+        evidenceData = [
+            {
+                id: 1,
+                name: "Police Report",
+                type: "document",
+                submitted_by: "Officer Smith",
+                date: "2024-01-15",
+                status: "admitted",
+                description: "Official police report of the incident",
+                file_size: "2.3 MB",
+                chain_of_custody: [
+                    { date: "2024-01-15", action: "Collected by Officer Smith", location: "Crime Scene" },
+                    { date: "2024-01-16", action: "Transferred to Evidence Room", location: "Police Station" },
+                    { date: "2024-01-20", action: "Submitted to Court", location: "Court House" }
+                ]
+            },
+            {
+                id: 2,
+                name: "Security Camera Footage",
+                type: "video",
+                submitted_by: "Store Manager",
+                date: "2024-01-16",
+                status: "pending",
+                description: "Security camera footage showing the incident",
+                file_size: "45.2 MB",
+                chain_of_custody: [
+                    { date: "2024-01-16", action: "Provided by Store Manager", location: "Store" },
+                    { date: "2024-01-17", action: "Analyzed by Forensics", location: "Forensics Lab" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Witness Statement",
+                type: "document",
+                submitted_by: "John Doe",
+                date: "2024-01-17",
+                status: "admitted",
+                description: "Written statement from eyewitness",
+                file_size: "156 KB",
+                chain_of_custody: [
+                    { date: "2024-01-17", action: "Signed by Witness", location: "Police Station" },
+                    { date: "2024-01-18", action: "Notarized", location: "Notary Office" }
+                ]
+            }
+        ];
+        
+        displayEvidence();
+        hideLoadingState();
+    }, 1000);
+}
+
+function displayEvidence() {
+    const tableBody = document.getElementById('evidenceTableBody');
+    const totalEvidence = document.getElementById('totalEvidence');
+    const admittedEvidence = document.getElementById('admittedEvidence');
+    const pendingEvidence = document.getElementById('pendingEvidence');
+    const excludedEvidence = document.getElementById('excludedEvidence');
+    
+    // Clear existing data
+    tableBody.innerHTML = '';
+    
+    // Update statistics
+    totalEvidence.textContent = evidenceData.length;
+    admittedEvidence.textContent = evidenceData.filter(e => e.status === 'admitted').length;
+    pendingEvidence.textContent = evidenceData.filter(e => e.status === 'pending').length;
+    excludedEvidence.textContent = evidenceData.filter(e => e.status === 'excluded').length;
+    
+    // Populate table
+    evidenceData.forEach(evidence => {
+        const row = document.createElement('tr');
+        row.className = 'evidence-item';
+        row.dataset.evidenceId = evidence.id;
+        
+        row.innerHTML = `
+            <td>
+                <div class="fw-bold">${evidence.name}</div>
+                <small class="text-muted">${evidence.description}</small>
+            </td>
+            <td>
+                <span class="badge bg-secondary">${evidence.type}</span>
+            </td>
+            <td>${evidence.submitted_by}</td>
+            <td>${evidence.date}</td>
+            <td>
+                <span class="badge bg-${getStatusColor(evidence.status)}">${evidence.status}</span>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="viewEvidenceDetails(${evidence.id})" title="View Details">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-success" onclick="reviewEvidence(${evidence.id})" title="Review">
+                        <i class="bi bi-check-circle"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    showEvidenceDisplay();
+}
+
+function getStatusColor(status) {
+    switch (status) {
+        case 'admitted': return 'success';
+        case 'excluded': return 'danger';
+        case 'pending': return 'warning';
+        default: return 'secondary';
+    }
+}
+
+function viewEvidenceDetails(evidenceId) {
+    const evidence = evidenceData.find(e => e.id === evidenceId);
+    if (!evidence) return;
+    
+    const detailsPanel = document.getElementById('evidenceDetailsPanel');
+    const detailsContent = document.getElementById('evidenceDetailsContent');
+    
+    detailsContent.innerHTML = `
+        <div class="mb-3">
+            <label class="form-label fw-bold">Evidence Name:</label>
+            <div>${evidence.name}</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Type:</label>
+            <div><span class="badge bg-secondary">${evidence.type}</span></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Description:</label>
+            <div>${evidence.description}</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Submitted By:</label>
+            <div>${evidence.submitted_by}</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Date:</label>
+            <div>${evidence.date}</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">File Size:</label>
+            <div>${evidence.file_size}</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Status:</label>
+            <div><span class="badge bg-${getStatusColor(evidence.status)}">${evidence.status}</span></div>
+        </div>
+    `;
+    
+    detailsPanel.style.display = 'block';
+    
+    // Update chain of custody
+    displayChainOfCustody(evidence.chain_of_custody);
+}
+
+function displayChainOfCustody(chain) {
+    const timeline = document.getElementById('custodyTimeline');
+    
+    timeline.innerHTML = '';
+    
+    chain.forEach(item => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = 'timeline-item';
+        
+        timelineItem.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${item.action}</h6>
+                            <p class="mb-1 text-muted">${item.location}</p>
+                        </div>
+                        <small class="text-muted">${item.date}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        timeline.appendChild(timelineItem);
+    });
+}
+
+function reviewEvidence(evidenceId) {
+    currentEvidenceId = evidenceId;
+    const evidence = evidenceData.find(e => e.id === evidenceId);
+    
+    if (evidence) {
+        document.getElementById('evidenceStatus').value = evidence.status;
+        document.getElementById('evidenceReviewForm').style.display = 'block';
+    }
+}
+
+function filterEvidence(type) {
+    const rows = document.querySelectorAll('#evidenceTableBody tr');
+    
+    rows.forEach(row => {
+        const evidenceId = row.dataset.evidenceId;
+        const evidence = evidenceData.find(e => e.id == evidenceId);
+        
+        if (type === 'all' || evidence.type === type) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function showLoadingState() {
+    document.getElementById('evidenceLoadingState').style.display = 'block';
+    document.getElementById('evidenceDisplayArea').style.display = 'none';
+}
+
+function hideLoadingState() {
+    document.getElementById('evidenceLoadingState').style.display = 'none';
+}
+
+function showEvidenceDisplay() {
+    document.getElementById('evidenceDisplayArea').style.display = 'block';
+}
+
+function hideEvidenceDisplay() {
+    document.getElementById('evidenceDisplayArea').style.display = 'none';
+    document.getElementById('evidenceDetailsPanel').style.display = 'none';
+    document.getElementById('evidenceReviewForm').style.display = 'none';
+}
+
+function exportEvidenceReport() {
+    // Implementation for exporting evidence report
+    alert('Evidence report export functionality would be implemented here.');
+}
+
+// Handle evidence review form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const evidenceReviewForm = document.getElementById('evidenceReviewFormElement');
+    if (evidenceReviewForm) {
+        evidenceReviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (currentEvidenceId) {
+                const status = document.getElementById('evidenceStatus').value;
+                const notes = document.getElementById('evidenceNotes').value;
+                const weight = document.getElementById('evidenceWeight').value;
+                
+                // Update evidence status
+                const evidence = evidenceData.find(e => e.id === currentEvidenceId);
+                if (evidence) {
+                    evidence.status = status;
+                    displayEvidence();
+                }
+                
+                // Show success message
+                showAlert('Evidence review submitted successfully!', 'success');
+                
+                // Reset form
+                this.reset();
+                document.getElementById('evidenceReviewForm').style.display = 'none';
+                currentEvidenceId = null;
+            }
+        });
+    }
+});
+</script>

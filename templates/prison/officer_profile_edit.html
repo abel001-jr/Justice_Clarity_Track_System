@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - {{ user.get_full_name }} - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Edit Profile
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:officer_profile' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Profile Edit Form -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Profile Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="first_name" class="form-label">First Name *</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               value="{{ user.first_name|default:'' }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last_name" class="form-label">Last Name *</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                                               value="{{ user.last_name|default:'' }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               value="{{ user.email|default:'' }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" 
+                                               value="{{ user.profile.phone|default:'' }}" placeholder="Enter phone number">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="department" class="form-label">Department</label>
+                                        <input type="text" class="form-control" id="department" name="department" 
+                                               value="{{ user.profile.department|default:'' }}" placeholder="Enter department">
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="badge_number" class="form-label">Badge Number</label>
+                                        <input type="text" class="form-control" id="badge_number" name="badge_number" 
+                                               value="{{ user.profile.badge_number|default:'' }}" placeholder="Enter badge number">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bio" class="form-label">Bio/Notes</label>
+                                    <textarea class="form-control" id="bio" name="bio" rows="4" 
+                                              placeholder="Tell us about yourself, your experience, or any additional information...">{{ user.profile.bio|default:'' }}</textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        Update Profile
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Current Profile Summary -->
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Current Profile Summary
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Username:</strong> {{ user.username }}</p>
+                                    <p><strong>Full Name:</strong> {{ user.get_full_name|default:"Not provided" }}</p>
+                                    <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+                                    <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Last Login:</strong> {{ user.last_login|date:"F j, Y g:i A"|default:"Never" }}</p>
+                                    <p><strong>Staff Status:</strong> 
+                                        <span class="badge bg-{% if user.is_staff %}success{% else %}secondary{% endif %}">
+                                            {% if user.is_staff %}Staff Member{% else %}Regular User{% endif %}
+                                        </span>
+                                    </p>
+                                    <p><strong>Active Status:</strong> 
+                                        <span class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Profile Guidelines -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Profile Guidelines
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Keep information accurate and current
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Use your official name as it appears on ID
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Provide a valid email address
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Include relevant contact information
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Update when information changes
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Security Note -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Security Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info mb-0">
+                                <small>
+                                    <strong>Note:</strong> Profile updates are logged for security purposes. 
+                                    Contact your system administrator if you need to change your username or password.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-lightning me-2"></i>
+                                Quick Actions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'prison:officer_profile' %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye me-2"></i>
+                                    View Profile
+                                </a>
+                                <a href="{% url 'prison:dashboard' %}" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-speedometer2 me-2"></i>
+                                    Dashboard
+                                </a>
+                                <a href="{% url 'prison:inmate_list' %}" class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-people me-2"></i>
+                                    View Inmates
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

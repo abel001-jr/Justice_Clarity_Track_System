@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hearing Management - Court Clerk{% endblock %}
+
+{% block page_title %}Hearing Management{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-calendar-event me-2"></i>
+            Hearing Management
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'court:hearing_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Schedule Hearing
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchHearing" placeholder="Search hearings...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="searchHearings()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="preliminary">Preliminary</option>
+                        <option value="trial">Trial</option>
+                        <option value="sentencing">Sentencing</option>
+                        <option value="appeal">Appeal</option>
+                        <option value="review">Review</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="filterHearings()">
+                        <i class="bi bi-funnel me-2"></i>
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hearings Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Case Number</th>
+                            <th>Hearing Type</th>
+                            <th>Scheduled Date</th>
+                            <th>Judge</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hearing in hearings %}
+                        <tr data-status="{% if hearing.is_completed %}completed{% elif hearing.is_cancelled %}cancelled{% else %}scheduled{% endif %}" data-type="{{ hearing.hearing_type }}">
+                            <td>
+                                <div class="fw-bold">{{ hearing.case.case_number }}</div>
+                                <small class="text-muted">{{ hearing.case.title|truncatechars:40 }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ hearing.get_hearing_type_display }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ hearing.scheduled_date|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ hearing.scheduled_date|time:"g:i A" }}</small>
+                                {% if hearing.duration_minutes %}
+                                    <br><small class="text-info">{{ hearing.duration_minutes }} min</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary rounded-circle p-2 me-2">
+                                        <i class="bi bi-person text-white"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ hearing.judge.get_full_name }}</div>
+                                        <small class="text-muted">{{ hearing.judge.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ hearing.location }}</td>
+                            <td>
+                                {% if hearing.is_completed %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% if hearing.actual_date %}
+                                        <br><small class="text-muted">{{ hearing.actual_date|date:"M d, Y" }}</small>
+                                    {% endif %}
+                                {% elif hearing.is_cancelled %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                    {% if hearing.cancellation_reason %}
+                                        <br><small class="text-muted">{{ hearing.cancellation_reason|truncatechars:30 }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-warning">Scheduled</span>
+                                    {% if hearing.scheduled_date|date:'Y-m-d' == 'today'|date:'Y-m-d' %}
+                                        <br><small class="text-warning">Today</small>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'court:hearing_detail' hearing.id %}" class="btn btn-outline-primary" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'court:hearing_edit' hearing.id %}" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'court:case_detail' hearing.case.id %}" class="btn btn-outline-info" title="View Case">
+                                        <i class="bi bi-folder"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                                No hearings found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hearing filtering
+    function filterHearings() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const typeFilter = document.getElementById('typeFilter').value;
+        const rows = document.querySelectorAll('tbody tr[data-status]');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (statusFilter && row.dataset.status !== statusFilter) {
+                show = false;
+            }
+            
+            if (typeFilter && row.dataset.type !== typeFilter) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Search functionality
+    function searchHearings() {
+        const query = document.getElementById('searchHearing').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-status]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Event listeners
+    document.getElementById('statusFilter').addEventListener('change', filterHearings);
+    document.getElementById('typeFilter').addEventListener('change', filterHearings);
+    
+    document.getElementById('searchHearing').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchHearings();
+        }
+    });
+</script>
+{% endblock %}

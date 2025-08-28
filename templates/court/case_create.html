@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create New Case - Court Clerk{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-plus-circle me-2"></i>
+            Create New Case
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'court:case_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Cases
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Case Creation Form -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clipboard-plus me-2"></i>
+                        Case Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="case_number" class="form-label">Case Number *</label>
+                                <input type="text" class="form-control" id="case_number" name="case_number" 
+                                       placeholder="Enter case number" required>
+                                <div class="form-text">Unique identifier for the case</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="case_type" class="form-label">Case Type *</label>
+                                <select class="form-select" id="case_type" name="case_type" required>
+                                    <option value="">Select case type...</option>
+                                    <option value="criminal">Criminal</option>
+                                    <option value="civil">Civil</option>
+                                    <option value="family">Family</option>
+                                    <option value="commercial">Commercial</option>
+                                    <option value="administrative">Administrative</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Case Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="Enter case title" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="plaintiff_name" class="form-label">Plaintiff *</label>
+                                <input type="text" class="form-control" id="plaintiff_name" name="plaintiff_name" 
+                                       placeholder="Enter plaintiff name" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="defendant_name" class="form-label">Defendant *</label>
+                                <input type="text" class="form-control" id="defendant_name" name="defendant_name" 
+                                       placeholder="Enter defendant name" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="plaintiff_lawyer" class="form-label">Plaintiff Lawyer</label>
+                                <input type="text" class="form-control" id="plaintiff_lawyer" name="plaintiff_lawyer" 
+                                       placeholder="Enter lawyer name">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="defendant_lawyer" class="form-label">Defendant Lawyer</label>
+                                <input type="text" class="form-control" id="defendant_lawyer" name="defendant_lawyer" 
+                                       placeholder="Enter lawyer name">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Case Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" 
+                                      placeholder="Provide a detailed description of the case..." required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="assigned_judge" class="form-label">Assign Judge</label>
+                                <select class="form-select" id="assigned_judge" name="assigned_judge">
+                                    <option value="">Select judge...</option>
+                                    <!-- This will be populated via AJAX -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Create Case
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Case Guidelines -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Case Creation Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Ensure case number is unique
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Provide accurate participant information
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Include comprehensive case description
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Set appropriate priority level
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Assign judge if available
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Case Types -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        Case Type Descriptions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        <strong>Criminal:</strong> Offenses against the state/society<br>
+                        <strong>Civil:</strong> Disputes between individuals/organizations<br>
+                        <strong>Family:</strong> Domestic relations, custody, divorce<br>
+                        <strong>Commercial:</strong> Business disputes, contracts<br>
+                        <strong>Administrative:</strong> Government agency decisions
+                    </small>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'court:case_list' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-list me-2"></i>
+                            View All Cases
+                        </a>
+                        <a href="{% url 'court:hearing_create' %}" class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-calendar-plus me-2"></i>
+                            Schedule Hearing
+                        </a>
+                        <a href="{% url 'court:report_create' %}" class="btn btn-outline-warning btn-sm">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            Create Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load judges when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadJudges();
+        loadTemplateData();
+    });
+
+    // Load judges via AJAX
+    function loadJudges() {
+        fetch('{% url "court:get_judges" %}')
+            .then(response => response.json())
+            .then(data => {
+                const judgeSelect = document.getElementById('assigned_judge');
+                data.judges.forEach(judge => {
+                    const option = document.createElement('option');
+                    option.value = judge.id;
+                    option.textContent = judge.name;
+                    judgeSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading judges:', error);
+            });
+    }
+
+    // Load template data and auto-fill form
+    function loadTemplateData() {
+        const templateData = sessionStorage.getItem('selectedTemplate');
+        if (templateData) {
+            try {
+                const data = JSON.parse(templateData);
+                
+                // Auto-fill form fields
+                if (data.case_type) {
+                    document.getElementById('case_type').value = data.case_type;
+                }
+                if (data.priority) {
+                    document.getElementById('priority').value = data.priority;
+                }
+                if (data.plaintiff_name) {
+                    document.getElementById('plaintiff_name').value = data.plaintiff_name;
+                }
+                if (data.defendant_name) {
+                    document.getElementById('defendant_name').value = data.defendant_name;
+                }
+                if (data.description) {
+                    document.getElementById('description').value = data.description;
+                }
+                
+                // Clear the stored template data
+                sessionStorage.removeItem('selectedTemplate');
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>
+                    Template loaded successfully! Form has been pre-filled with template data.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const container = document.querySelector('.container-fluid');
+                container.insertBefore(alertDiv, container.firstChild);
+                
+            } catch (error) {
+                console.error('Error parsing template data:', error);
+            }
+        }
+    }
+</script>
+{% endblock %}

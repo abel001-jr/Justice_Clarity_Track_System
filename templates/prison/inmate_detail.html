@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ inmate.get_full_name }} - Inmate Details{% endblock %}
+{% block page_title %}Inmate Details{% endblock %}
+
+{% block sidebar_nav %}
+{{ block.super }}
+<div class="nav-item">
+    <a href="{% url 'prison:dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:visitor_list' %}" class="nav-link">
+        <i class="bi bi-person-check"></i>
+        Visitors
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:program_list' %}" class="nav-link">
+        <i class="bi bi-book"></i>
+        Programs
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:release_list' %}" class="nav-link">
+        <i class="bi bi-calendar-event"></i>
+        Releases
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Inmate Details</h2>
+    <div class="btn-group">
+        <a href="{% url 'prison:inmate_edit' inmate.id %}" class="btn btn-warning">
+            <i class="bi bi-pencil me-2"></i>Edit
+        </a>
+        <a href="{% url 'prison:inmate_assign' inmate.id %}" class="btn btn-info">
+            <i class="bi bi-person-check me-2"></i>Assign Officer
+        </a>
+        <a href="{% url 'prison:report_create' %}" class="btn btn-primary">
+            <i class="bi bi-file-plus me-2"></i>Submit Report
+        </a>
+    </div>
+</div>
+
+<!-- Inmate Information -->
+<div class="row">
+    <!-- Basic Information -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Basic Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Inmate ID</label>
+                        <p class="form-control-plaintext">{{ inmate.inmate_id }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Full Name</label>
+                        <p class="form-control-plaintext">{{ inmate.get_full_name }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Date of Birth</label>
+                        <p class="form-control-plaintext">{{ inmate.date_of_birth|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Gender</label>
+                        <p class="form-control-plaintext">{{ inmate.gender|title }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Nationality</label>
+                        <p class="form-control-plaintext">{{ inmate.nationality }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">ID Number</label>
+                        <p class="form-control-plaintext">{{ inmate.identification_number }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Case Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Case Number</label>
+                        <p class="form-control-plaintext">{{ inmate.case_number }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Conviction Date</label>
+                        <p class="form-control-plaintext">{{ inmate.conviction_date|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Crime Description</label>
+                        <p class="form-control-plaintext">{{ inmate.crime_description }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Sentence Type</label>
+                        <p class="form-control-plaintext">{{ inmate.get_sentence_type_display }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Sentence Duration</label>
+                        <p class="form-control-plaintext">
+                            {% if inmate.sentence_duration_years %}
+                                {{ inmate.sentence_duration_years }} years
+                                {% if inmate.sentence_duration_months %}, {{ inmate.sentence_duration_months }} months{% endif %}
+                                {% if inmate.sentence_duration_days %}, {{ inmate.sentence_duration_days }} days{% endif %}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if inmate.fine_amount %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fine Amount</label>
+                        <p class="form-control-plaintext">${{ inmate.fine_amount }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Prison Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Prison Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Admission Date</label>
+                        <p class="form-control-plaintext">{{ inmate.admission_date|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Expected Release Date</label>
+                        <p class="form-control-plaintext">
+                            {% if inmate.expected_release_date %}
+                                {{ inmate.expected_release_date|date:"F d, Y" }}
+                                {% if inmate.is_release_approaching %}
+                                    <br><span class="badge bg-warning">{{ inmate.days_until_release }} days remaining</span>
+                                {% endif %}
+                            {% else %}
+                                Not set
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if inmate.actual_release_date %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Actual Release Date</label>
+                        <p class="form-control-plaintext">{{ inmate.actual_release_date|date:"F d, Y" }}</p>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Cell Number</label>
+                        <p class="form-control-plaintext">{{ inmate.cell_number|default:"Not assigned" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Block</label>
+                        <p class="form-control-plaintext">{{ inmate.block|default:"Not assigned" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <p class="form-control-plaintext">
+                            {% if inmate.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif inmate.status == 'released' %}
+                                <span class="badge bg-primary">Released</span>
+                            {% elif inmate.status == 'transferred' %}
+                                <span class="badge bg-warning">Transferred</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ inmate.get_status_display }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Stats -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Stats</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Behavior Rating</label>
+                    <p class="form-control-plaintext">
+                        {% if inmate.behavior_rating == 'excellent' %}
+                            <span class="badge bg-success">Excellent</span>
+                        {% elif inmate.behavior_rating == 'good' %}
+                            <span class="badge bg-primary">Good</span>
+                        {% elif inmate.behavior_rating == 'fair' %}
+                            <span class="badge bg-warning">Fair</span>
+                        {% else %}
+                            <span class="badge bg-danger">Poor</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Assigned Officer</label>
+                    <p class="form-control-plaintext">
+                        {% if inmate.assigned_officer %}
+                            {{ inmate.assigned_officer.get_full_name|default:inmate.assigned_officer.username }}
+                        {% else %}
+                            <span class="text-muted">Unassigned</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Time Served</label>
+                    <p class="form-control-plaintext">
+                        {% if inmate.admission_date %}
+                            {{ inmate.admission_date|timesince }}
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Contact -->
+        {% if inmate.emergency_contact_name %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Emergency Contact</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ inmate.emergency_contact_name }}</p>
+                <p><strong>Phone:</strong> {{ inmate.emergency_contact_phone|default:"Not provided" }}</p>
+                <p><strong>Relationship:</strong> {{ inmate.emergency_contact_relationship|default:"Not specified" }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Medical & Special Needs -->
+        {% if inmate.medical_conditions or inmate.special_needs %}
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Medical & Special Needs</h6>
+            </div>
+            <div class="card-body">
+                {% if inmate.medical_conditions %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Medical Conditions</label>
+                    <p class="form-control-plaintext">{{ inmate.medical_conditions }}</p>
+                </div>
+                {% endif %}
+                {% if inmate.special_needs %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Special Needs</label>
+                    <p class="form-control-plaintext">{{ inmate.special_needs }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'prison:inmate_reports' inmate.id %}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-file-text me-2"></i>
+                            View Reports
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'prison:inmate_visitors' inmate.id %}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-person-check me-2"></i>
+                            View Visitors
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'prison:inmate_programs' inmate.id %}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-book me-2"></i>
+                            View Programs
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'prison:visitor_create' %}?inmate_id={{ inmate.id }}" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Log Visit
+                        </a>
+                    </div>
+                    {% if inmate.status == 'active' %}
+                    <div class="col-md-2 mb-3">
+                        <a href="{% url 'prison:inmate_release' inmate.id %}" class="btn btn-outline-danger w-100">
+                            <i class="bi bi-door-open me-2"></i>
+                            Process Release
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

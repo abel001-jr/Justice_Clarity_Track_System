@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Review Report - {{ report.title }} - Prison Management{% endblock %}
+{% block page_title %}Review Report{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-file-check me-2"></i>
+            Review Report: {{ report.title }}
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'prison:report_detail' report.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Report Details
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-check me-2"></i>
+                        Report Review Form
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Report Summary -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">Report Summary</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Title:</strong> {{ report.title }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Type:</strong> {{ report.get_report_type_display }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Inmate:</strong> {{ report.inmate.get_full_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Priority:</strong> 
+                                    <span class="badge {% if report.priority == 'urgent' %}bg-danger{% elif report.priority == 'high' %}bg-warning{% elif report.priority == 'medium' %}bg-info{% else %}bg-secondary{% endif %}">
+                                        {{ report.get_priority_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Submitted:</strong> {{ report.submission_date|date:"M d, Y H:i" }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Status:</strong> 
+                                    <span class="badge {% if report.is_reviewed %}bg-success{% else %}bg-warning{% endif %}">
+                                        {% if report.is_reviewed %}Reviewed{% else %}Pending Review{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Form -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">Review Details</h6>
+                            
+                            <div class="mb-3">
+                                <label for="review_status" class="form-label">Review Status *</label>
+                                <select class="form-select" id="review_status" name="review_status" required>
+                                    <option value="">Select status...</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="pending_changes">Pending Changes</option>
+                                    <option value="requires_followup">Requires Follow-up</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="review_notes" class="form-label">Review Notes *</label>
+                                <textarea class="form-control" id="review_notes" name="review_notes" rows="4" placeholder="Provide detailed review notes, recommendations, or feedback..." required></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="review_date" class="form-label">Review Date</label>
+                                    <input type="date" class="form-control" id="review_date" name="review_date" value="{{ today|date:'Y-m-d' }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="review_priority" class="form-label">Review Priority</label>
+                                    <select class="form-select" id="review_priority" name="review_priority">
+                                        <option value="normal">Normal</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="action_required" class="form-label">Action Required</label>
+                                <textarea class="form-control" id="action_required" name="action_required" rows="3" placeholder="Specify any actions that need to be taken based on this report..."></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="followup_date" class="form-label">Follow-up Date</label>
+                                <input type="date" class="form-control" id="followup_date" name="followup_date">
+                                <div class="form-text">Set a date for follow-up if required</div>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirm_review" required>
+                                <label class="form-check-label" for="confirm_review">
+                                    I confirm that I have thoroughly reviewed this report and my assessment is accurate
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Report Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-file-text me-2"></i>
+                        Report Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Report ID:</strong> {{ report.id }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Submitted By:</strong> {{ report.submitted_by.get_full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Incident Date:</strong> 
+                        {% if report.incident_date %}
+                            {{ report.incident_date|date:"M d, Y" }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Content Length:</strong> {{ report.content|length }} characters
+                    </div>
+                    {% if report.recommendations %}
+                    <div class="mb-0">
+                        <strong>Has Recommendations:</strong> Yes
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Inmate Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-person me-2"></i>
+                        Inmate Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Name:</strong> {{ report.inmate.get_full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>ID:</strong> {{ report.inmate.inmate_id }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Status:</strong> 
+                        <span class="badge {% if report.inmate.status == 'active' %}bg-success{% elif report.inmate.status == 'medical' %}bg-warning{% elif report.inmate.status == 'transferred' %}bg-info{% else %}bg-secondary{% endif %}">
+                            {{ report.inmate.get_status_display }}
+                        </span>
+                    </div>
+                    {% if report.inmate.assigned_officer %}
+                    <div class="mb-0">
+                        <strong>Assigned Officer:</strong> {{ report.inmate.assigned_officer.get_full_name }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'prison:report_detail' report.id %}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-2"></i>
+                            View Full Report
+                        </a>
+                        <a href="{% url 'prison:inmate_detail' report.inmate.id %}" class="btn btn-outline-info">
+                            <i class="bi bi-person me-2"></i>
+                            View Inmate Details
+                        </a>
+                        <a href="{% url 'prison:inmate_reports' report.inmate.id %}" class="btn btn-outline-warning">
+                            <i class="bi bi-file-text me-2"></i>
+                            All Inmate Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    const confirmCheckbox = document.getElementById('confirm_review');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    function validateForm() {
+        const reviewStatus = document.getElementById('review_status').value;
+        const reviewNotes = document.getElementById('review_notes').value.trim();
+        const isConfirmed = confirmCheckbox.checked;
+        
+        if (!reviewStatus || !reviewNotes || !isConfirmed) {
+            submitButton.disabled = true;
+            submitButton.classList.add('btn-secondary');
+            submitButton.classList.remove('btn-primary');
+        } else {
+            submitButton.disabled = false;
+            submitButton.classList.remove('btn-secondary');
+            submitButton.classList.add('btn-primary');
+        }
+    }
+
+    // Initial validation
+    validateForm();
+
+    // Validate on change
+    document.getElementById('review_status').addEventListener('change', validateForm);
+    document.getElementById('review_notes').addEventListener('input', validateForm);
+    confirmCheckbox.addEventListener('change', validateForm);
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        const reviewStatus = document.getElementById('review_status').value;
+        const reviewNotes = document.getElementById('review_notes').value.trim();
+        const isConfirmed = confirmCheckbox.checked;
+
+        if (!reviewStatus) {
+            e.preventDefault();
+            alert('Please select a review status.');
+            return;
+        }
+
+        if (!reviewNotes) {
+            e.preventDefault();
+            alert('Please provide review notes.');
+            return;
+        }
+
+        if (!isConfirmed) {
+            e.preventDefault();
+            alert('Please confirm the review.');
+            return;
+        }
+
+        // Show confirmation dialog
+        if (!confirm('Are you sure you want to submit this review?')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

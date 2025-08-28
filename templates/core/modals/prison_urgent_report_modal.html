@@ -1,0 +1,117 @@
+<!-- Prison Urgent Report Modal -->
+<div class="modal fade" id="prisonUrgentReportModal" tabindex="-1" aria-labelledby="prisonUrgentReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="prisonUrgentReportModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Submit Urgent Report
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <strong>Urgent Report:</strong> This report will be immediately flagged for priority review by supervisors and may trigger emergency protocols.
+                </div>
+                
+                <form id="prisonUrgentReportForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="urgentInmateId" class="form-label">Inmate ID</label>
+                                <input type="text" class="form-control" id="urgentInmateId" name="inmate_id" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="urgentInmateName" class="form-label">Inmate Name</label>
+                                <input type="text" class="form-control" id="urgentInmateName" name="inmate_name" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="urgentType" class="form-label">Emergency Type</label>
+                        <select class="form-select" id="urgentType" name="emergency_type" required>
+                            <option value="">Select emergency type...</option>
+                            <option value="medical">Medical Emergency</option>
+                            <option value="security">Security Incident</option>
+                            <option value="violence">Violence/Assault</option>
+                            <option value="escape">Escape Attempt</option>
+                            <option value="fire">Fire/Safety Hazard</option>
+                            <option value="suicide">Suicide Risk</option>
+                            <option value="other">Other Emergency</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="urgentTitle" class="form-label">Emergency Title</label>
+                        <input type="text" class="form-control" id="urgentTitle" name="emergency_title" 
+                               placeholder="Brief description of the emergency" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="urgentDescription" class="form-label">Detailed Description</label>
+                        <textarea class="form-control" id="urgentDescription" name="emergency_description" rows="6" 
+                                  placeholder="Provide a detailed account of what happened, when, where, and any immediate actions taken..." required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="emergencyDate" class="form-label">Emergency Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="emergencyDate" name="emergency_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="location" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       placeholder="Where did this occur?" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="immediateActions" class="form-label">Immediate Actions Taken</label>
+                        <textarea class="form-control" id="immediateActions" name="immediate_actions" rows="3" 
+                                  placeholder="What immediate actions were taken? Who was notified?" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="requiredActions" class="form-label">Required Follow-up Actions</label>
+                        <textarea class="form-control" id="requiredActions" name="required_actions" rows="3" 
+                                  placeholder="What actions are needed? Who should be involved?"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="witnesses" class="form-label">Witnesses/Involved Staff</label>
+                        <input type="text" class="form-control" id="witnesses" name="witnesses" 
+                               placeholder="Names of witnesses or staff involved">
+                    </div>
+                    
+                    <input type="hidden" name="priority" value="urgent">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="prisonUrgentReportForm" class="btn btn-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Submit Urgent Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#prisonUrgentReportModal .form-control:focus,
+#prisonUrgentReportModal .form-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+#prisonUrgentReportModal .alert-danger {
+    border-left: 4px solid #dc3545;
+}
+</style>

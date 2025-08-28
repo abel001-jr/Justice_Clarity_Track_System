@@ -1,0 +1,245 @@
+/* Judge Dashboard Specific Styles */
+/* Extends base.css with judge-specific enhancements */
+
+/* Judge-specific color variations */
+:root {
+    --judge-primary: #1e3a8a;
+    --judge-secondary: #64748b;
+    --judge-accent: #3b82f6;
+    --judge-success: #059669;
+    --judge-warning: #d97706;
+    --judge-danger: #dc2626;
+    --judge-info: #0891b2;
+}
+
+/* Enhanced navigation sections for judge dashboard */
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 1rem 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Judge-specific stat cards */
+.stat-card.judge-primary {
+    background: linear-gradient(135deg, var(--judge-primary) 0%, #1e40af 100%);
+}
+
+.stat-card.judge-accent {
+    background: linear-gradient(135deg, var(--judge-accent) 0%, #2563eb 100%);
+}
+
+/* Enhanced workflow progress */
+.workflow-progress {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+}
+
+.workflow-step:hover {
+    background: #e2e8f0;
+    transform: translateX(4px);
+}
+
+.workflow-step.completed {
+    background: linear-gradient(135deg, var(--judge-success) 0%, #10b981 100%);
+    color: white;
+}
+
+.workflow-step.active {
+    background: linear-gradient(135deg, var(--judge-accent) 0%, #2563eb 100%);
+    color: white;
+}
+
+.workflow-step-number {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--judge-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 1rem;
+}
+
+.workflow-step.completed .workflow-step-number {
+    background: white;
+    color: var(--judge-success);
+}
+
+.workflow-step.active .workflow-step-number {
+    background: white;
+    color: var(--judge-accent);
+}
+
+/* Enhanced quick actions for judges */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--judge-accent);
+}
+
+.quick-action-icon {
+    font-size: 2.5rem;
+    color: var(--judge-primary);
+    margin-bottom: 1rem;
+}
+
+.quick-action-title {
+    font-weight: 600;
+    color: var(--judge-primary);
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-description {
+    color: var(--judge-secondary);
+    font-size: 0.875rem;
+}
+
+/* Enhanced case cards */
+.case-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--judge-primary);
+}
+
+.case-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.case-card.urgent {
+    border-left-color: var(--judge-danger);
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+}
+
+.case-card.pending {
+    border-left-color: var(--judge-warning);
+    background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+}
+
+.case-card.completed {
+    border-left-color: var(--judge-success);
+    background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%);
+}
+
+/* Enhanced modal styling for judge-specific modals */
+.modal-header.judge-modal {
+    background: linear-gradient(135deg, var(--judge-primary) 0%, #1e40af 100%);
+    color: white;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.modal-header.judge-modal .btn-close {
+    filter: invert(1);
+}
+
+/* Responsive design for judge dashboard */
+@media (max-width: 768px) {
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .workflow-step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .workflow-step-number {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for judge dashboard elements */
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.judge-dashboard-content {
+    animation: slideInFromLeft 0.5s ease-out;
+}
+
+/* Enhanced table styling for judge dashboard */
+.table.judge-table thead th {
+    background: linear-gradient(135deg, var(--judge-primary) 0%, #1e40af 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.table.judge-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+/* Badge styling for judge dashboard */
+.badge.judge-badge {
+    background: var(--judge-primary);
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.badge.judge-badge.urgent {
+    background: var(--judge-danger);
+}
+
+.badge.judge-badge.warning {
+    background: var(--judge-warning);
+}
+
+.badge.judge-badge.success {
+    background: var(--judge-success);
+}

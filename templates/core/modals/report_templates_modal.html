@@ -1,0 +1,458 @@
+<!-- Report Templates Modal -->
+<div class="modal fade" id="reportTemplatesModal" tabindex="-1" aria-labelledby="reportTemplatesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header clerk-modal">
+                <h5 class="modal-title" id="reportTemplatesModalLabel">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    Report Templates
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Template Categories -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary active" data-category="all">All</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="case">Case Reports</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="hearing">Hearing Reports</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="evidence">Evidence Reports</button>
+                            <button type="button" class="btn btn-outline-primary" data-category="administrative">Administrative</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Search -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="templateSearch" placeholder="Search templates...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates Grid -->
+                <div class="row" id="templatesGrid">
+                    <!-- Case Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="case">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-file-text text-primary fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Case Summary Report</h6>
+                                        <p class="card-text text-muted">Comprehensive summary of case proceedings, evidence, and decisions.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-primary">Case</span>
+                                            <span class="badge bg-secondary">Summary</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('case-summary')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewTemplate('case-summary')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3" data-category="case">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-file-earmark-text text-success fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Case Status Report</h6>
+                                        <p class="card-text text-muted">Current status and progress update for ongoing cases.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-primary">Case</span>
+                                            <span class="badge bg-success">Status</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('case-status')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewTemplate('case-status')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hearing Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="hearing">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-calendar-event text-warning fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Hearing Minutes</h6>
+                                        <p class="card-text text-muted">Detailed minutes and proceedings from court hearings.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-warning">Hearing</span>
+                                            <span class="badge bg-secondary">Minutes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('hearing-minutes')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewTemplate('hearing-minutes')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3" data-category="hearing">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-calendar-check text-info fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Hearing Schedule Report</h6>
+                                        <p class="card-text text-muted">Schedule and logistics report for upcoming hearings.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-warning">Hearing</span>
+                                            <span class="badge bg-info">Schedule</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('hearing-schedule')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewTemplate('hearing-schedule')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evidence Report Templates -->
+                    <div class="col-md-6 mb-3" data-category="evidence">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-search text-danger fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Evidence Inventory</h6>
+                                        <p class="card-text text-muted">Comprehensive inventory and chain of custody for evidence.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-danger">Evidence</span>
+                                            <span class="badge bg-secondary">Inventory</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('evidence-inventory')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewTemplate('evidence-inventory')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Administrative Templates -->
+                    <div class="col-md-6 mb-3" data-category="administrative">
+                        <div class="card template-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start">
+                                    <div class="template-icon me-3">
+                                        <i class="bi bi-gear text-secondary fs-2"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="card-title">Administrative Summary</h6>
+                                        <p class="card-text text-muted">Administrative tasks, assignments, and procedural updates.</p>
+                                        <div class="template-tags">
+                                            <span class="badge bg-secondary">Administrative</span>
+                                            <span class="badge bg-primary">Summary</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button class="btn btn-sm btn-outline-primary" onclick="useTemplate('admin-summary')">
+                                    <i class="bi bi-download me-1"></i>
+                                    Use Template
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="previewTemplate('admin-summary')">
+                                    <i class="bi bi-eye me-1"></i>
+                                    Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Templates -->
+                <div class="mt-4">
+                    <h6 class="text-secondary mb-3">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Recently Used Templates
+                    </h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-file-text text-primary me-2"></i>
+                                Case Summary Report
+                            </div>
+                            <small class="text-muted">Used 2 hours ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-calendar-event text-warning me-2"></i>
+                                Hearing Minutes
+                            </div>
+                            <small class="text-muted">Used yesterday</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-search text-danger me-2"></i>
+                                Evidence Inventory
+                            </div>
+                            <small class="text-muted">Used 3 days ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'court:report_create' %}" class="btn btn-clerk-primary">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    Create Custom Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.template-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--clerk-primary);
+}
+
+.template-icon {
+    min-width: 50px;
+    text-align: center;
+}
+
+.template-tags {
+    margin-top: 0.5rem;
+}
+
+.template-tags .badge {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+#reportTemplatesModal .list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+#reportTemplatesModal .list-group-item:hover {
+    background: #f8f9fa;
+}
+
+#reportTemplatesModal .btn-group .btn.active {
+    background: var(--clerk-primary);
+    border-color: var(--clerk-primary);
+    color: white;
+}
+</style>
+
+<script>
+// Template filtering
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryButtons = document.querySelectorAll('[data-category]');
+    const searchInput = document.getElementById('templateSearch');
+    const templateCards = document.querySelectorAll('[data-category]');
+    
+    // Category filtering
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.dataset.category;
+            
+            // Update active button
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            filterTemplates();
+        });
+    });
+    
+    // Search filtering
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTemplates);
+    }
+    
+    function filterTemplates() {
+        const activeCategory = document.querySelector('[data-category].active').dataset.category;
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        
+        templateCards.forEach(card => {
+            const category = card.dataset.category;
+            const title = card.querySelector('.card-title').textContent.toLowerCase();
+            const description = card.querySelector('.card-text').textContent.toLowerCase();
+            
+            const matchesCategory = activeCategory === 'all' || category === activeCategory;
+            const matchesSearch = searchTerm === '' || 
+                                title.includes(searchTerm) || 
+                                description.includes(searchTerm);
+            
+            card.style.display = matchesCategory && matchesSearch ? '' : 'none';
+        });
+    }
+});
+
+function useTemplate(templateId) {
+    // Redirect to report creation with template
+    window.location.href = `{% url 'court:report_create' %}?template=${templateId}`;
+}
+
+function previewTemplate(templateId) {
+    // Show template preview
+    const templates = {
+        'case-summary': {
+            title: 'Case Summary Report',
+            content: `# Case Summary Report
+
+## Case Information
+- **Case Number:** [Case Number]
+- **Case Title:** [Case Title]
+- **Filing Date:** [Filing Date]
+- **Assigned Judge:** [Judge Name]
+
+## Case Summary
+[Brief summary of the case]
+
+## Key Issues
+- [Issue 1]
+- [Issue 2]
+- [Issue 3]
+
+## Evidence Summary
+[Summary of key evidence]
+
+## Proceedings
+[Summary of court proceedings]
+
+## Current Status
+[Current case status]
+
+## Next Steps
+[Upcoming actions or hearings]`
+        },
+        'hearing-minutes': {
+            title: 'Hearing Minutes',
+            content: `# Hearing Minutes
+
+## Hearing Information
+- **Date:** [Hearing Date]
+- **Time:** [Hearing Time]
+- **Location:** [Courtroom]
+- **Case Number:** [Case Number]
+
+## Attendees
+- **Judge:** [Judge Name]
+- **Plaintiff:** [Plaintiff Name]
+- **Defendant:** [Defendant Name]
+- **Attorneys:** [Attorney Names]
+
+## Proceedings
+[Detailed minutes of the hearing]
+
+## Evidence Presented
+[Evidence presented during hearing]
+
+## Decisions Made
+[Decisions and rulings]
+
+## Next Hearing
+[Date and time of next hearing]`
+        }
+    };
+    
+    const template = templates[templateId];
+    if (template) {
+        showTemplatePreview(template.title, template.content);
+    }
+}
+
+function showTemplatePreview(title, content) {
+    const modal = new bootstrap.Modal(document.getElementById('templatePreviewModal'));
+    
+    // Create preview modal if it doesn't exist
+    if (!document.getElementById('templatePreviewModal')) {
+        const previewModal = document.createElement('div');
+        previewModal.className = 'modal fade';
+        previewModal.id = 'templatePreviewModal';
+        previewModal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header clerk-modal">
+                        <h5 class="modal-title">Template Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <pre id="templateContent" style="white-space: pre-wrap; font-family: inherit;"></pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-clerk-primary" onclick="useTemplateFromPreview()">Use Template</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(previewModal);
+    }
+    
+    document.getElementById('templateContent').textContent = content;
+    modal.show();
+}
+</script>

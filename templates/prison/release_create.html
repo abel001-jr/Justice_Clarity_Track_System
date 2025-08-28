@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Process Release - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-door-open me-2"></i>
+                    Process Release
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:release_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Releases
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Release Form -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Release Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="inmate_id" class="form-label">Inmate *</label>
+                                        <select class="form-select" id="inmate_id" name="inmate_id" required>
+                                            <option value="">Select Inmate</option>
+                                            {% for inmate in inmates %}
+                                                <option value="{{ inmate.id }}">
+                                                    {{ inmate.inmate_id }} - {{ inmate.get_full_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="release_date" class="form-label">Release Date *</label>
+                                        <input type="date" class="form-control" id="release_date" name="release_date" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="release_type" class="form-label">Release Type *</label>
+                                        <select class="form-select" id="release_type" name="release_type" required>
+                                            <option value="">Select Type</option>
+                                            <option value="sentence_completed">Sentence Completed</option>
+                                            <option value="parole_granted">Parole Granted</option>
+                                            <option value="early_release">Early Release</option>
+                                            <option value="medical_release">Medical Release</option>
+                                            <option value="transferred">Transferred</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="authorized_by" class="form-label">Authorized By *</label>
+                                        <select class="form-select" id="authorized_by" name="authorized_by" required>
+                                            <option value="">Select Officer</option>
+                                            {% for officer in officers %}
+                                                <option value="{{ officer.id }}">
+                                                    {{ officer.get_full_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="release_notes" class="form-label">Release Notes</label>
+                                    <textarea class="form-control" id="release_notes" name="release_notes" rows="4" 
+                                              placeholder="Enter any additional notes about the release..."></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        Process Release
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Release Guidelines -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Release Guidelines
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Verify all documentation is complete
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Ensure proper authorization is obtained
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Update inmate status to 'Released'
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Record actual release date
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Process any required exit procedures
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Important Notes -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Important Notes
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning mb-0">
+                                <small>
+                                    <strong>Warning:</strong> Processing a release will permanently change the inmate's status. 
+                                    This action cannot be easily undone. Please ensure all information is correct before proceeding.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+// Auto-set release date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('release_date').value = today;
+});
+</script>
+{% endblock %}

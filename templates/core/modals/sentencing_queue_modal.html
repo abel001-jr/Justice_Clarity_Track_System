@@ -1,0 +1,636 @@
+<!-- Sentencing Queue Modal -->
+<div class="modal fade" id="sentencingQueueModal" tabindex="-1" aria-labelledby="sentencingQueueModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="sentencingQueueModalLabel">
+                    <i class="bi bi-list-check me-2"></i>
+                    Sentencing Queue
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Queue Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="bi bi-clock-history text-warning"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="totalQueue">0</div>
+                                <div class="stat-label">Total in Queue</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="bi bi-exclamation-triangle text-danger"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="urgentQueue">0</div>
+                                <div class="stat-label">Urgent Cases</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="bi bi-check-circle text-success"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="completedToday">0</div>
+                                <div class="stat-label">Completed Today</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card info">
+                            <div class="stat-icon">
+                                <i class="bi bi-calendar-event text-info"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="avgProcessingTime">0</div>
+                                <div class="stat-label">Avg Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Queue Controls -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-primary active" onclick="filterQueue('all')">All</button>
+                            <button class="btn btn-outline-primary" onclick="filterQueue('urgent')">Urgent</button>
+                            <button class="btn btn-outline-primary" onclick="filterQueue('overdue')">Overdue</button>
+                            <button class="btn btn-outline-primary" onclick="filterQueue('today')">Today</button>
+                        </div>
+                        <div class="btn-group ms-3" role="group">
+                            <button class="btn btn-outline-secondary" onclick="sortQueue('date')">By Date</button>
+                            <button class="btn btn-outline-secondary" onclick="sortQueue('priority')">By Priority</button>
+                            <button class="btn btn-outline-secondary" onclick="sortQueue('case_number')">By Case #</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search cases..." id="queueSearch">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Queue Table -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-table me-2"></i>
+                                    Cases Awaiting Sentencing
+                                </h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0" id="queueTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Case Number</th>
+                                                <th>Title</th>
+                                                <th>Type</th>
+                                                <th>Priority</th>
+                                                <th>Ready Date</th>
+                                                <th>Days in Queue</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="queueTableBody">
+                                            <!-- Queue items will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Actions -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-gear me-2"></i>
+                                    Batch Actions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button class="btn btn-outline-primary w-100" onclick="batchProcess()">
+                                            <i class="bi bi-play-circle me-2"></i>
+                                            Process Selected
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-outline-warning w-100" onclick="batchReschedule()">
+                                            <i class="bi bi-calendar-plus me-2"></i>
+                                            Reschedule Selected
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-outline-info w-100" onclick="batchAssign()">
+                                            <i class="bi bi-person-plus me-2"></i>
+                                            Assign to Another Judge
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-outline-secondary w-100" onclick="exportQueue()">
+                                            <i class="bi bi-download me-2"></i>
+                                            Export Queue
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Close
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="refreshQueue()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+                    Refresh
+                </button>
+                <button type="button" class="btn btn-primary" onclick="processNextCase()">
+                    <i class="bi bi-play me-2"></i>
+                    Process Next Case
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Case Processing Modal -->
+<div class="modal fade" id="caseProcessingModal" tabindex="-1" aria-labelledby="caseProcessingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="caseProcessingModalLabel">
+                    <i class="bi bi-gavel me-2"></i>
+                    Process Case for Sentencing
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="caseProcessingContent">
+                    <!-- Case processing content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="completeSentencing()">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Complete Sentencing
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card.warning {
+    border-left-color: #ffc107;
+}
+
+.stat-card.success {
+    border-left-color: #28a745;
+}
+
+.stat-card.info {
+    border-left-color: #17a2b8;
+}
+
+.stat-card .stat-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.stat-content .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.stat-content .stat-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.queue-item {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.queue-item:hover {
+    background-color: #f8f9fa;
+}
+
+.queue-item.selected {
+    background-color: #e3f2fd;
+}
+
+.queue-item.urgent {
+    border-left: 4px solid #dc3545;
+}
+
+.queue-item.overdue {
+    border-left: 4px solid #ffc107;
+}
+
+.priority-high {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.priority-medium {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.priority-low {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.days-overdue {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.days-normal {
+    color: #6c757d;
+}
+</style>
+
+<script>
+let queueData = [];
+let selectedCases = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadQueueData();
+    renderQueue();
+    updateStatistics();
+    
+    // Handle search
+    const queueSearch = document.getElementById('queueSearch');
+    if (queueSearch) {
+        queueSearch.addEventListener('input', function() {
+            filterQueueData();
+        });
+    }
+});
+
+function loadQueueData() {
+    // Simulate loading queue data
+    queueData = [
+        {
+            id: 1,
+            case_number: "CR-2024-001",
+            title: "State vs. John Doe",
+            type: "Criminal",
+            priority: "high",
+            ready_date: "2024-01-15",
+            days_in_queue: 5,
+            status: "ready",
+            is_urgent: true,
+            is_overdue: false
+        },
+        {
+            id: 2,
+            case_number: "CR-2024-002",
+            title: "State vs. Jane Smith",
+            type: "Criminal",
+            priority: "medium",
+            ready_date: "2024-01-10",
+            days_in_queue: 10,
+            status: "ready",
+            is_urgent: false,
+            is_overdue: true
+        },
+        {
+            id: 3,
+            case_number: "CV-2024-003",
+            title: "Johnson vs. Corporation",
+            type: "Civil",
+            priority: "low",
+            ready_date: "2024-01-18",
+            days_in_queue: 2,
+            status: "ready",
+            is_urgent: false,
+            is_overdue: false
+        },
+        {
+            id: 4,
+            case_number: "CR-2024-004",
+            title: "State vs. Robert Wilson",
+            type: "Criminal",
+            priority: "high",
+            ready_date: "2024-01-20",
+            days_in_queue: 0,
+            status: "ready",
+            is_urgent: true,
+            is_overdue: false
+        }
+    ];
+}
+
+function renderQueue() {
+    const tableBody = document.getElementById('queueTableBody');
+    tableBody.innerHTML = '';
+    
+    queueData.forEach(case_item => {
+        const row = document.createElement('tr');
+        row.className = `queue-item ${case_item.is_urgent ? 'urgent' : ''} ${case_item.is_overdue ? 'overdue' : ''}`;
+        row.dataset.caseId = case_item.id;
+        
+        row.innerHTML = `
+            <td>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${case_item.id}" onchange="toggleCaseSelection(${case_item.id})">
+                </div>
+                <strong>${case_item.case_number}</strong>
+            </td>
+            <td>${case_item.title}</td>
+            <td><span class="badge bg-secondary">${case_item.type}</span></td>
+            <td>
+                <span class="priority-${case_item.priority}">${case_item.priority.toUpperCase()}</span>
+            </td>
+            <td>${new Date(case_item.ready_date).toLocaleDateString()}</td>
+            <td>
+                <span class="${case_item.days_in_queue > 7 ? 'days-overdue' : 'days-normal'}">
+                    ${case_item.days_in_queue} days
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-success">Ready</span>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="processCase(${case_item.id})" title="Process">
+                        <i class="bi bi-play"></i>
+                    </button>
+                    <button class="btn btn-outline-info" onclick="viewCaseDetails(${case_item.id})" title="View Details">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="rescheduleCase(${case_item.id})" title="Reschedule">
+                        <i class="bi bi-calendar-plus"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+}
+
+function updateStatistics() {
+    document.getElementById('totalQueue').textContent = queueData.length;
+    document.getElementById('urgentQueue').textContent = queueData.filter(c => c.is_urgent).length;
+    document.getElementById('completedToday').textContent = Math.floor(Math.random() * 5) + 1; // Mock data
+    document.getElementById('avgProcessingTime').textContent = Math.floor(Math.random() * 3) + 1; // Mock data
+}
+
+function filterQueue(filter) {
+    const rows = document.querySelectorAll('#queueTableBody tr');
+    
+    rows.forEach(row => {
+        const caseId = row.dataset.caseId;
+        const case_item = queueData.find(c => c.id == caseId);
+        
+        let show = true;
+        
+        switch (filter) {
+            case 'urgent':
+                show = case_item.is_urgent;
+                break;
+            case 'overdue':
+                show = case_item.is_overdue;
+                break;
+            case 'today':
+                const today = new Date().toDateString();
+                const readyDate = new Date(case_item.ready_date).toDateString();
+                show = today === readyDate;
+                break;
+            default:
+                show = true;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+    
+    // Update active filter button
+    document.querySelectorAll('[onclick^="filterQueue"]').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function sortQueue(sortBy) {
+    switch (sortBy) {
+        case 'date':
+            queueData.sort((a, b) => new Date(a.ready_date) - new Date(b.ready_date));
+            break;
+        case 'priority':
+            const priorityOrder = { high: 3, medium: 2, low: 1 };
+            queueData.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+            break;
+        case 'case_number':
+            queueData.sort((a, b) => a.case_number.localeCompare(b.case_number));
+            break;
+    }
+    
+    renderQueue();
+}
+
+function filterQueueData() {
+    const searchTerm = document.getElementById('queueSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#queueTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+function toggleCaseSelection(caseId) {
+    const index = selectedCases.indexOf(caseId);
+    if (index > -1) {
+        selectedCases.splice(index, 1);
+    } else {
+        selectedCases.push(caseId);
+    }
+    
+    // Update row styling
+    const row = document.querySelector(`tr[data-case-id="${caseId}"]`);
+    if (selectedCases.includes(caseId)) {
+        row.classList.add('selected');
+    } else {
+        row.classList.remove('selected');
+    }
+}
+
+function processCase(caseId) {
+    const case_item = queueData.find(c => c.id === caseId);
+    if (!case_item) return;
+    
+    const content = document.getElementById('caseProcessingContent');
+    content.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Case Information</h6>
+                <p><strong>Case Number:</strong> ${case_item.case_number}</p>
+                <p><strong>Title:</strong> ${case_item.title}</p>
+                <p><strong>Type:</strong> ${case_item.type}</p>
+                <p><strong>Priority:</strong> <span class="priority-${case_item.priority}">${case_item.priority.toUpperCase()}</span></p>
+            </div>
+            <div class="col-md-6">
+                <h6>Sentencing Options</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="openSentencingModal(${caseId})">
+                        <i class="bi bi-gavel me-2"></i>
+                        Pass Sentence
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="rescheduleCase(${caseId})">
+                        <i class="bi bi-calendar-plus me-2"></i>
+                        Reschedule
+                    </button>
+                    <button class="btn btn-outline-info" onclick="assignToAnotherJudge(${caseId})">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Assign to Another Judge
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('caseProcessingModal'));
+    modal.show();
+}
+
+function openSentencingModal(caseId) {
+    // Close processing modal
+    const processingModal = bootstrap.Modal.getInstance(document.getElementById('caseProcessingModal'));
+    processingModal.hide();
+    
+    // Open sentencing modal
+    const sentencingModal = new bootstrap.Modal(document.getElementById('passSentenceModal'));
+    sentencingModal.show();
+    
+    // Set the case in the sentencing modal
+    document.getElementById('caseSelect').value = caseId;
+    document.getElementById('caseSelect').dispatchEvent(new Event('change'));
+}
+
+function viewCaseDetails(caseId) {
+    const case_item = queueData.find(c => c.id === caseId);
+    if (!case_item) return;
+    
+    const details = `
+        <strong>Case Details</strong><br>
+        <strong>Case Number:</strong> ${case_item.case_number}<br>
+        <strong>Title:</strong> ${case_item.title}<br>
+        <strong>Type:</strong> ${case_item.type}<br>
+        <strong>Priority:</strong> ${case_item.priority}<br>
+        <strong>Ready Date:</strong> ${new Date(case_item.ready_date).toLocaleDateString()}<br>
+        <strong>Days in Queue:</strong> ${case_item.days_in_queue}<br>
+        <strong>Status:</strong> ${case_item.status}
+    `;
+    
+    showAlert(details, 'info');
+}
+
+function rescheduleCase(caseId) {
+    showAlert('Case rescheduling functionality would be implemented here.', 'info');
+}
+
+function assignToAnotherJudge(caseId) {
+    showAlert('Judge assignment functionality would be implemented here.', 'info');
+}
+
+function batchProcess() {
+    if (selectedCases.length === 0) {
+        showAlert('Please select cases to process.', 'warning');
+        return;
+    }
+    
+    showAlert(`Processing ${selectedCases.length} selected cases...`, 'info');
+}
+
+function batchReschedule() {
+    if (selectedCases.length === 0) {
+        showAlert('Please select cases to reschedule.', 'warning');
+        return;
+    }
+    
+    showAlert(`Rescheduling ${selectedCases.length} selected cases...`, 'info');
+}
+
+function batchAssign() {
+    if (selectedCases.length === 0) {
+        showAlert('Please select cases to assign.', 'warning');
+        return;
+    }
+    
+    showAlert(`Assigning ${selectedCases.length} selected cases...`, 'info');
+}
+
+function exportQueue() {
+    showAlert('Queue export functionality would be implemented here.', 'info');
+}
+
+function refreshQueue() {
+    loadQueueData();
+    renderQueue();
+    updateStatistics();
+    showAlert('Queue refreshed successfully!', 'success');
+}
+
+function processNextCase() {
+    const nextCase = queueData.find(c => c.is_urgent) || queueData[0];
+    if (nextCase) {
+        processCase(nextCase.id);
+    } else {
+        showAlert('No cases in queue to process.', 'info');
+    }
+}
+
+function completeSentencing() {
+    showAlert('Sentencing completed successfully!', 'success');
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('caseProcessingModal'));
+    modal.hide();
+}
+</script>

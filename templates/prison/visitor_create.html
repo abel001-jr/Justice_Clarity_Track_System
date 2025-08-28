@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Log New Visit - Justice Clarity{% endblock %}
+{% block page_title %}Log New Visit{% endblock %}
+
+{% block sidebar_nav %}
+{{ block.super }}
+<div class="nav-item">
+    <a href="{% url 'prison:dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:visitor_list' %}" class="nav-link active">
+        <i class="bi bi-person-check"></i>
+        Visitors
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:program_list' %}" class="nav-link">
+        <i class="bi bi-book"></i>
+        Programs
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:release_list' %}" class="nav-link">
+        <i class="bi bi-calendar-event"></i>
+        Releases
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Log Completed Visit</h2>
+    <a href="{% url 'prison:visitor_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Visitors
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Visit Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="inmate_id" class="form-label">Inmate <span class="text-danger">*</span></label>
+                        <select class="form-select" id="inmate_id" name="inmate_id" required>
+                            <option value="">Select an inmate...</option>
+                            {% for inmate in inmates %}
+                            <option value="{{ inmate.id }}" {% if selected_inmate_id == inmate.id or request.GET.inmate_id == inmate.id|stringformat:"s" %}selected{% endif %}>
+                                {{ inmate.inmate_id }} - {{ inmate.get_full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="visitor_name" class="form-label">Visitor Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="visitor_name" name="visitor_name" required 
+                                   placeholder="Full name of visitor">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="visitor_id_number" class="form-label">Visitor ID Number</label>
+                            <input type="text" class="form-control" id="visitor_id_number" name="visitor_id_number" 
+                                   placeholder="Government ID, driver's license, etc.">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="relationship" class="form-label">Relationship <span class="text-danger">*</span></label>
+                            <select class="form-select" id="relationship" name="relationship" required>
+                                <option value="">Select relationship...</option>
+                                <option value="spouse">Spouse</option>
+                                <option value="parent">Parent</option>
+                                <option value="child">Child</option>
+                                <option value="sibling">Sibling</option>
+                                <option value="friend">Friend</option>
+                                <option value="attorney">Attorney</option>
+                                <option value="clergy">Clergy</option>
+                                <option value="medical">Medical Professional</option>
+                                <option value="official">Official/Government</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="visit_type" class="form-label">Visit Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="visit_type" name="visit_type" required>
+                                <option value="">Select visit type...</option>
+                                <option value="family">Family Visit</option>
+                                <option value="legal">Legal Visit</option>
+                                <option value="official">Official Visit</option>
+                                <option value="medical">Medical Visit</option>
+                                <option value="religious">Religious Visit</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="visit_date" class="form-label">Visit Date & Time <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control" id="visit_date" name="visit_date" required>
+                            <small class="form-text text-muted">When the visit occurred (not scheduled time)</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="visit_duration_minutes" class="form-label">Duration (minutes) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="visit_duration_minutes" name="visit_duration_minutes" 
+                                   min="15" max="480" value="60" required>
+                            <small class="form-text text-muted">Minimum 15 minutes, maximum 8 hours (480 minutes)</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose of Visit <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="purpose" name="purpose" rows="3" required 
+                                  placeholder="Describe the purpose of this visit..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Additional Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="2" 
+                                  placeholder="Any additional information about the visit..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="authorized_by" class="form-label">Authorized By <span class="text-danger">*</span></label>
+                            <select class="form-select" id="authorized_by" name="authorized_by" required>
+                                <option value="">Select authorizing officer...</option>
+                                {% for officer in officers %}
+                                <option value="{{ officer.id }}">{{ officer.get_full_name|default:officer.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="is_approved" class="form-label">Approval Status <span class="text-danger">*</span></label>
+                            <select class="form-select" id="is_approved" name="is_approved" required>
+                                <option value="true">Approved</option>
+                                <option value="false">Pending Approval</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'prison:visitor_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus me-2"></i>Log Completed Visit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Visit Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-primary">Visit Types</h6>
+                    <ul class="list-unstyled small">
+                        <li><strong>Family:</strong> Immediate family members</li>
+                        <li><strong>Legal:</strong> Attorneys and legal representatives</li>
+                        <li><strong>Official:</strong> Government officials and staff</li>
+                        <li><strong>Medical:</strong> Healthcare professionals</li>
+                        <li><strong>Religious:</strong> Clergy and spiritual advisors</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-warning">Duration Limits</h6>
+                    <ul class="list-unstyled small">
+                        <li><strong>Family:</strong> Up to 2 hours</li>
+                        <li><strong>Legal:</strong> Up to 4 hours</li>
+                        <li><strong>Official:</strong> Up to 2 hours</li>
+                        <li><strong>Medical:</strong> As needed</li>
+                        <li><strong>Religious:</strong> Up to 1 hour</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Note:</strong> This form is for logging visits that have already occurred. All visits must be pre-approved and logged for security purposes.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set default visit date to 1 hour ago (since we're logging visits that have already happened)
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+    oneHourAgo.setMinutes(oneHourAgo.getMinutes() - oneHourAgo.getTimezoneOffset());
+    document.getElementById('visit_date').value = oneHourAgo.toISOString().slice(0, 16);
+    
+    // Auto-set duration based on visit type
+    document.getElementById('visit_type').addEventListener('change', function() {
+        const durationField = document.getElementById('visit_duration_minutes');
+        const type = this.value;
+        
+        switch(type) {
+            case 'family':
+                durationField.value = 120; // 2 hours
+                break;
+            case 'legal':
+                durationField.value = 240; // 4 hours
+                break;
+            case 'official':
+                durationField.value = 120; // 2 hours
+                break;
+            case 'medical':
+                durationField.value = 60; // 1 hour (default)
+                break;
+            case 'religious':
+                durationField.value = 60; // 1 hour
+                break;
+            default:
+                durationField.value = 60; // 1 hour
+        }
+    });
+</script>
+{% endblock %}

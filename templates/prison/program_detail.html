@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Program Details - {{ program.program_name }} - Prison Management{% endblock %}
+{% block page_title %}Program Details{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-calendar-event me-2"></i>
+            {{ program.program_name }}
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'prison:program_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Programs
+            </a>
+            <a href="{% url 'prison:program_edit' program.id %}" class="btn btn-primary">
+                <i class="bi bi-pencil me-2"></i>
+                Edit Program
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Program Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Program Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>Program Name:</strong> {{ program.program_name }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Type:</strong> 
+                                <span class="badge bg-primary">{{ program.get_program_type_display }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Status:</strong> 
+                                <span class="badge {% if program.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if program.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>Start Date:</strong> {{ program.start_date|date:"M d, Y" }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Expected End Date:</strong> {{ program.expected_end_date|date:"M d, Y" }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Duration:</strong> {{ program.get_duration_days }} days
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mt-2">{{ program.description|linebreaks }}</p>
+                    </div>
+
+                    {% if program.instructor %}
+                    <div class="mb-3">
+                        <strong>Instructor:</strong> {{ program.instructor }}
+                    </div>
+                    {% endif %}
+
+                    {% if program.notes %}
+                    <div class="mb-3">
+                        <strong>Notes:</strong>
+                        <p class="mt-2">{{ program.notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Progress Tracking
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="progress mb-3">
+                                <div class="progress-bar" role="progressbar" style="width: {{ program.get_progress_percentage }}%" 
+                                     aria-valuenow="{{ program.get_progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ program.get_progress_percentage }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">Program Progress</small>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <h4 class="text-primary">{{ program.get_days_remaining }}</h4>
+                                <small class="text-muted">Days Remaining</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Activities -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-list-check me-2"></i>
+                        Program Activities
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if program.activities %}
+                        <div class="list-group list-group-flush">
+                            {% for activity in program.activities %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ activity.title }}</h6>
+                                        <p class="mb-1">{{ activity.description }}</p>
+                                        <small class="text-muted">{{ activity.scheduled_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <span class="badge {% if activity.is_completed %}bg-success{% else %}bg-warning{% endif %}">
+                                        {% if activity.is_completed %}Completed{% else %}Pending{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No activities scheduled for this program.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Inmate Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-person me-2"></i>
+                        Participant Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Inmate:</strong> {{ program.inmate.get_full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>ID:</strong> {{ program.inmate.inmate_id }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Status:</strong> 
+                        <span class="badge {% if program.inmate.status == 'active' %}bg-success{% elif program.inmate.status == 'medical' %}bg-warning{% elif program.inmate.status == 'transferred' %}bg-info{% else %}bg-secondary{% endif %}">
+                            {{ program.inmate.get_status_display }}
+                        </span>
+                    </div>
+                    {% if program.inmate.assigned_officer %}
+                    <div class="mb-0">
+                        <strong>Assigned Officer:</strong> {{ program.inmate.assigned_officer.get_full_name }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Program Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Program Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-primary">{{ program.get_duration_days }}</span>
+                            </div>
+                            <small class="text-muted">Total Days</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-success">{{ program.get_days_remaining }}</span>
+                            </div>
+                            <small class="text-muted">Days Left</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-info">{{ program.get_progress_percentage }}%</span>
+                            </div>
+                            <small class="text-muted">Progress</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-warning">{{ program.activities|length }}</span>
+                            </div>
+                            <small class="text-muted">Activities</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'prison:program_edit' program.id %}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-2"></i>
+                            Edit Program
+                        </a>
+                        <a href="{% url 'prison:inmate_detail' program.inmate.id %}" class="btn btn-outline-info">
+                            <i class="bi bi-person me-2"></i>
+                            View Inmate Details
+                        </a>
+                        <a href="{% url 'prison:inmate_programs' program.inmate.id %}" class="btn btn-outline-warning">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            All Inmate Programs
+                        </a>
+                        <a href="{% url 'prison:program_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-list me-2"></i>
+                            All Programs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any interactive functionality here
+    console.log('Program detail page loaded');
+});
+</script>
+{% endblock %}

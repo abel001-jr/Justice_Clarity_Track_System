@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assign Officer - {{ inmate.get_full_name }} - Prison Management{% endblock %}
+{% block page_title %}Assign Officer{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-person-check me-2"></i>
+            Assign Officer to {{ inmate.get_full_name }}
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Inmate Details
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-check me-2"></i>
+                        Officer Assignment
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Current Assignment -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">Current Assignment</h6>
+                            {% if inmate.assigned_officer %}
+                                <div class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-shield-check me-2"></i>
+                                        <div>
+                                            <strong>Currently Assigned:</strong> {{ inmate.assigned_officer.get_full_name }}
+                                            <br>
+                                            <small class="text-muted">Assigned on: {{ inmate.assigned_date|date:"M d, Y"|default:"Unknown" }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        <div>
+                                            <strong>No Officer Assigned</strong>
+                                            <br>
+                                            <small class="text-muted">This inmate is not currently assigned to any officer.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Assignment Form -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">New Assignment</h6>
+                            
+                            <div class="mb-3">
+                                <label for="assigned_officer" class="form-label">Select Officer *</label>
+                                <select class="form-select" id="assigned_officer" name="assigned_officer" required>
+                                    <option value="">Choose an officer...</option>
+                                    {% for officer in officers %}
+                                        <option value="{{ officer.id }}" {% if inmate.assigned_officer == officer %}selected{% endif %}>
+                                            {{ officer.get_full_name }} 
+                                            {% if officer.profile.role %}
+                                                ({{ officer.profile.get_role_display }})
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Select the officer who will be responsible for this inmate</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="assignment_reason" class="form-label">Assignment Reason</label>
+                                <textarea class="form-control" id="assignment_reason" name="assignment_reason" rows="3" placeholder="Explain the reason for this assignment..."></textarea>
+                                <div class="form-text">Optional: Provide context for this assignment</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="assignment_date" class="form-label">Assignment Date</label>
+                                    <input type="date" class="form-control" id="assignment_date" name="assignment_date" value="{{ today|date:'Y-m-d' }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="assignment_type" class="form-label">Assignment Type</label>
+                                    <select class="form-select" id="assignment_type" name="assignment_type">
+                                        <option value="primary">Primary Assignment</option>
+                                        <option value="temporary">Temporary Assignment</option>
+                                        <option value="backup">Backup Assignment</option>
+                                        <option value="special">Special Assignment</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="special_instructions" class="form-label">Special Instructions</label>
+                                <textarea class="form-control" id="special_instructions" name="special_instructions" rows="3" placeholder="Any special instructions or notes for the assigned officer..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Confirmation -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirm_assignment" required>
+                                <label class="form-check-label" for="confirm_assignment">
+                                    I confirm that this assignment is appropriate and necessary
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary me-md-2" onclick="history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-check me-2"></i>
+                                Assign Officer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Inmate Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-person me-2"></i>
+                        Inmate Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Name:</strong> {{ inmate.get_full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>ID:</strong> {{ inmate.inmate_id }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Status:</strong> 
+                        <span class="badge {% if inmate.status == 'active' %}bg-success{% elif inmate.status == 'medical' %}bg-warning{% elif inmate.status == 'transferred' %}bg-info{% else %}bg-secondary{% endif %}">
+                            {{ inmate.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Age:</strong> {{ inmate.get_age }} years
+                    </div>
+                    {% if inmate.offense %}
+                    <div class="mb-3">
+                        <strong>Offense:</strong> {{ inmate.offense }}
+                    </div>
+                    {% endif %}
+                    {% if inmate.expected_release_date %}
+                    <div class="mb-0">
+                        <strong>Release Date:</strong> {{ inmate.expected_release_date|date:"M d, Y" }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Assignment History -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Assignment History
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if assignment_history %}
+                        <div class="list-group list-group-flush">
+                            {% for assignment in assignment_history %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ assignment.officer.get_full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ assignment.assignment_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <span class="badge bg-secondary">{{ assignment.get_assignment_type_display }}</span>
+                                </div>
+                                {% if assignment.reason %}
+                                <small class="text-muted">{{ assignment.reason }}</small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No previous assignments found.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-2"></i>
+                            View Inmate Details
+                        </a>
+                        <a href="{% url 'prison:inmate_edit' inmate.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil me-2"></i>
+                            Edit Inmate
+                        </a>
+                        <a href="{% url 'prison:inmate_reports' inmate.id %}" class="btn btn-outline-warning">
+                            <i class="bi bi-file-text me-2"></i>
+                            View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    const confirmCheckbox = document.getElementById('confirm_assignment');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    function validateForm() {
+        const assignedOfficer = document.getElementById('assigned_officer').value;
+        const isConfirmed = confirmCheckbox.checked;
+        
+        if (!assignedOfficer || !isConfirmed) {
+            submitButton.disabled = true;
+            submitButton.classList.add('btn-secondary');
+            submitButton.classList.remove('btn-primary');
+        } else {
+            submitButton.disabled = false;
+            submitButton.classList.remove('btn-secondary');
+            submitButton.classList.add('btn-primary');
+        }
+    }
+
+    // Initial validation
+    validateForm();
+
+    // Validate on change
+    document.getElementById('assigned_officer').addEventListener('change', validateForm);
+    confirmCheckbox.addEventListener('change', validateForm);
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        const assignedOfficer = document.getElementById('assigned_officer').value;
+        const isConfirmed = confirmCheckbox.checked;
+
+        if (!assignedOfficer) {
+            e.preventDefault();
+            alert('Please select an officer to assign.');
+            return;
+        }
+
+        if (!isConfirmed) {
+            e.preventDefault();
+            alert('Please confirm the assignment.');
+            return;
+        }
+
+        // Show confirmation dialog
+        if (!confirm('Are you sure you want to assign this officer to the inmate?')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

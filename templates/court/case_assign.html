@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assign Judge - {{ case.case_number }}{% endblock %}
+
+{% block page_title %}Assign Judge{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Assign Judge to Case</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:case_detail' case.id %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Case
+                    </a>
+                </div>
+            </div>
+
+            <!-- Case Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Case Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Case Number:</strong> {{ case.case_number }}</p>
+                                    <p><strong>Case Type:</strong> {{ case.get_case_type_display }}</p>
+                                    <p><strong>Title:</strong> {{ case.title }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-{% if case.status == 'pending' %}warning{% elif case.status == 'active' %}primary{% elif case.status == 'closed' %}success{% else %}secondary{% endif %}">
+                                            {{ case.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Priority:</strong> 
+                                        <span class="badge bg-{% if case.priority == 'high' %}danger{% elif case.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                            {{ case.get_priority_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Filing Date:</strong> {{ case.filing_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Judge Assignment Form -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Select Judge</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" id="judgeAssignmentForm">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label for="judge" class="form-label">Assign Judge</label>
+                                    <select class="form-select" id="judge" name="judge" required>
+                                        <option value="">Select a judge...</option>
+                                    </select>
+                                    <div class="form-text">Choose a judge to assign to this case</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="assignment_notes" class="form-label">Assignment Notes</label>
+                                    <textarea class="form-control" id="assignment_notes" name="assignment_notes" rows="3" placeholder="Optional notes about the assignment..."></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'court:case_detail' case.id %}" class="btn btn-secondary me-md-2">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>Assign Judge
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Judges -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Available Judges</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="judgesList" class="row">
+                                <!-- Judges will be loaded here via AJAX -->
+                                <div class="col-12 text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load available judges
+    loadJudges();
+    
+    // Handle form submission
+    document.getElementById('judgeAssignmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const judgeId = document.getElementById('judge').value;
+        if (!judgeId) {
+            alert('Please select a judge');
+            return;
+        }
+        
+        // Submit the form
+        this.submit();
+    });
+});
+
+function loadJudges() {
+    fetch('{% url "court:get_judges" %}')
+        .then(response => response.json())
+        .then(data => {
+            const judgesList = document.getElementById('judgesList');
+            const judgeSelect = document.getElementById('judge');
+            
+            if (data.judges && data.judges.length > 0) {
+                // Populate select dropdown
+                data.judges.forEach(judge => {
+                    const option = document.createElement('option');
+                    option.value = judge.id;
+                    option.textContent = judge.name;
+                    judgeSelect.appendChild(option);
+                });
+                
+                // Display judges list
+                judgesList.innerHTML = data.judges.map(judge => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-person-badge fs-1 text-primary mb-3"></i>
+                                <h6 class="card-title">${judge.name}</h6>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectJudge(${judge.id})">
+                                    Select Judge
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                judgesList.innerHTML = '<div class="col-12 text-center text-muted">No judges available</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading judges:', error);
+            document.getElementById('judgesList').innerHTML = '<div class="col-12 text-center text-danger">Error loading judges</div>';
+        });
+}
+
+function selectJudge(judgeId) {
+    document.getElementById('judge').value = judgeId;
+    document.getElementById('judge').focus();
+}
+</script>
+{% endblock %}

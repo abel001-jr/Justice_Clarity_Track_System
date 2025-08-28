@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Case Report{% endblock %}
+
+{% block page_title %}Create Case Report{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Create Case Report</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:report_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Reports
+                    </a>
+                </div>
+            </div>
+
+            <!-- Report Creation Form -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" id="reportForm">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="case" class="form-label">Related Case</label>
+                                            <select class="form-select" id="case" name="case" required>
+                                                <option value="">Select a case...</option>
+                                            </select>
+                                            <div class="form-text">Choose the case this report relates to</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="report_type" class="form-label">Report Type</label>
+                                            <select class="form-select" id="report_type" name="report_type" required>
+                                                <option value="">Select report type...</option>
+                                                <option value="progress">Progress Report</option>
+                                                <option value="investigation">Investigation Report</option>
+                                                <option value="evidence">Evidence Report</option>
+                                                <option value="witness">Witness Statement</option>
+                                                <option value="expert">Expert Opinion</option>
+                                                <option value="financial">Financial Report</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Report Title</label>
+                                            <input type="text" class="form-control" id="title" name="title" placeholder="Brief, descriptive title for the report" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="priority" class="form-label">Priority Level</label>
+                                            <select class="form-select" id="priority" name="priority">
+                                                <option value="low">Low</option>
+                                                <option value="medium" selected>Medium</option>
+                                                <option value="high">High</option>
+                                                <option value="urgent">Urgent</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="summary" class="form-label">Executive Summary</label>
+                                    <textarea class="form-control" id="summary" name="summary" rows="3" placeholder="Brief summary of the report's key findings and recommendations..." required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Report Content</label>
+                                    <textarea class="form-control" id="content" name="content" rows="8" placeholder="Detailed report content including findings, analysis, and conclusions..." required></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="findings" class="form-label">Key Findings</label>
+                                            <textarea class="form-control" id="findings" name="findings" rows="4" placeholder="List the main findings and discoveries..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="recommendations" class="form-label">Recommendations</label>
+                                            <textarea class="form-control" id="recommendations" name="recommendations" rows="4" placeholder="Provide actionable recommendations based on findings..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="submission_date" class="form-label">Submission Date</label>
+                                            <input type="date" class="form-control" id="submission_date" name="submission_date" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="due_date" class="form-label">Due Date (if applicable)</label>
+                                            <input type="date" class="form-control" id="due_date" name="due_date">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="assigned_to" class="form-label">Assigned To</label>
+                                            <select class="form-select" id="assigned_to" name="assigned_to">
+                                                <option value="">Select assignee...</option>
+                                            </select>
+                                            <div class="form-text">Person responsible for follow-up actions</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="status" class="form-label">Report Status</label>
+                                            <select class="form-select" id="status" name="status">
+                                                <option value="draft" selected>Draft</option>
+                                                <option value="submitted">Submitted</option>
+                                                <option value="under_review">Under Review</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="rejected">Rejected</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="attachments" class="form-label">Attachments</label>
+                                    <input type="file" class="form-control" id="attachments" name="attachments" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                                    <div class="form-text">Upload supporting documents (optional)</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Additional Notes</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes or comments..."></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'court:report_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>Create Report
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Guidelines -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Writing Guidelines</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Structure & Content</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Use clear, objective language</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Include relevant facts and evidence</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Provide specific examples when possible</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Organize information logically</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Professional Standards</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Maintain impartiality and objectivity</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Cite sources and references</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Use appropriate legal terminology</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Ensure accuracy and completeness</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default submission date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('submission_date').value = today;
+    
+    // Load available cases
+    loadCases();
+    
+    // Load available assignees
+    loadAssignees();
+    
+    // Handle form submission
+    document.getElementById('reportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const caseId = document.getElementById('case').value;
+        const reportType = document.getElementById('report_type').value;
+        const title = document.getElementById('title').value.trim();
+        const summary = document.getElementById('summary').value.trim();
+        const content = document.getElementById('content').value.trim();
+        
+        if (!caseId) {
+            alert('Please select a related case');
+            return;
+        }
+        
+        if (!reportType) {
+            alert('Please select a report type');
+            return;
+        }
+        
+        if (!title) {
+            alert('Please provide a report title');
+            return;
+        }
+        
+        if (!summary) {
+            alert('Please provide an executive summary');
+            return;
+        }
+        
+        if (!content) {
+            alert('Please provide report content');
+            return;
+        }
+        
+        // Submit the form
+        this.submit();
+    });
+    
+    // File upload validation
+    document.getElementById('attachments').addEventListener('change', function() {
+        const files = this.files;
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > maxSize) {
+                alert(`File "${files[i].name}" is too large. Maximum size is 10MB.`);
+                this.value = '';
+                return;
+            }
+        }
+    });
+});
+
+function loadCases() {
+    // This would typically make an AJAX call to get available cases
+    // For now, we'll populate with some sample data
+    const caseSelect = document.getElementById('case');
+    
+    const sampleCases = [
+        { id: 1, number: 'CR-2024-001', title: 'State vs. John Doe' },
+        { id: 2, number: 'CR-2024-002', title: 'State vs. Jane Smith' },
+        { id: 3, number: 'CR-2024-003', title: 'State vs. Bob Johnson' }
+    ];
+    
+    sampleCases.forEach(caseItem => {
+        const option = document.createElement('option');
+        option.value = caseItem.id;
+        option.textContent = `${caseItem.number} - ${caseItem.title}`;
+        caseSelect.appendChild(option);
+    });
+}
+
+function loadAssignees() {
+    // This would typically make an AJAX call to get available assignees
+    // For now, we'll populate with some sample data
+    const assigneeSelect = document.getElementById('assigned_to');
+    
+    const sampleAssignees = [
+        { id: 1, name: 'Judge Smith' },
+        { id: 2, name: 'Judge Johnson' },
+        { id: 3, name: 'Clerk Williams' },
+        { id: 4, name: 'Prosecutor Brown' }
+    ];
+    
+    sampleAssignees.forEach(assignee => {
+        const option = document.createElement('option');
+        option.value = assignee.id;
+        option.textContent = assignee.name;
+        assigneeSelect.appendChild(option);
+    });
+}
+</script>
+{% endblock %}

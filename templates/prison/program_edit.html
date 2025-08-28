@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Program - {{ program.program_name }} - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Edit Program
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:program_detail' program.id %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Program
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Program Information -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Current Program Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Inmate:</strong> {{ program.inmate.get_full_name }}</p>
+                                    <p><strong>Program:</strong> {{ program.program_name }}</p>
+                                    <p><strong>Type:</strong> {{ program.get_program_type_display }}</p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-{% if program.status == 'enrolled' %}primary{% elif program.status == 'completed' %}success{% elif program.status == 'dropped' %}danger{% else %}warning{% endif %}">
+                                            {{ program.get_status_display }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Start Date:</strong> {{ program.start_date }}</p>
+                                    <p><strong>Expected End:</strong> {{ program.expected_end_date }}</p>
+                                    <p><strong>Progress:</strong> {{ program.progress_percentage }}%</p>
+                                    <p><strong>Instructor:</strong> {{ program.instructor|default:"Not assigned" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Form -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Update Program Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="program_name" class="form-label">Program Name *</label>
+                                        <input type="text" class="form-control" id="program_name" name="program_name" 
+                                               value="{{ program.program_name }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="program_type" class="form-label">Program Type *</label>
+                                        <select class="form-select" id="program_type" name="program_type" required>
+                                            <option value="education" {% if program.program_type == 'education' %}selected{% endif %}>Education</option>
+                                            <option value="vocational" {% if program.program_type == 'vocational' %}selected{% endif %}>Vocational Training</option>
+                                            <option value="counseling" {% if program.program_type == 'counseling' %}selected{% endif %}>Counseling</option>
+                                            <option value="therapy" {% if program.program_type == 'therapy' %}selected{% endif %}>Therapy</option>
+                                            <option value="work" {% if program.program_type == 'work' %}selected{% endif %}>Work Program</option>
+                                            <option value="religious" {% if program.program_type == 'religious' %}selected{% endif %}>Religious Program</option>
+                                            <option value="recreation" {% if program.program_type == 'recreation' %}selected{% endif %}>Recreation</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="start_date" class="form-label">Start Date *</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" 
+                                               value="{{ program.start_date|date:'Y-m-d' }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expected_end_date" class="form-label">Expected End Date *</label>
+                                        <input type="date" class="form-control" id="expected_end_date" name="expected_end_date" 
+                                               value="{{ program.expected_end_date|date:'Y-m-d' }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="status" class="form-label">Status *</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="enrolled" {% if program.status == 'enrolled' %}selected{% endif %}>Enrolled</option>
+                                            <option value="completed" {% if program.status == 'completed' %}selected{% endif %}>Completed</option>
+                                            <option value="dropped" {% if program.status == 'dropped' %}selected{% endif %}>Dropped</option>
+                                            <option value="suspended" {% if program.status == 'suspended' %}selected{% endif %}>Suspended</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="progress_percentage" class="form-label">Progress (%)</label>
+                                        <input type="number" class="form-control" id="progress_percentage" name="progress_percentage" 
+                                               value="{{ program.progress_percentage }}" min="0" max="100">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="instructor" class="form-label">Instructor</label>
+                                    <input type="text" class="form-control" id="instructor" name="instructor" 
+                                           value="{{ program.instructor|default:'' }}" placeholder="Enter instructor name">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Program Description *</label>
+                                    <textarea class="form-control" id="description" name="description" rows="4" required>{{ program.description }}</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Additional Notes</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="Enter any additional notes or updates...">{{ program.notes|default:'' }}</textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        Update Program
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Update Guidelines -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Update Guidelines
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Update progress regularly
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Modify dates if needed
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Change status appropriately
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Update instructor if changed
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Keep notes current
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Status Meanings -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-list-ul me-2"></i>
+                                Status Meanings
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <small class="text-muted">
+                                <strong>Enrolled:</strong> Inmate is actively participating<br>
+                                <strong>Completed:</strong> Program finished successfully<br>
+                                <strong>Dropped:</strong> Inmate withdrew from program<br>
+                                <strong>Suspended:</strong> Program temporarily halted
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-lightning me-2"></i>
+                                Quick Actions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'prison:program_detail' program.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye me-2"></i>
+                                    View Program Details
+                                </a>
+                                <a href="{% url 'prison:inmate_detail' program.inmate.id %}" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-person me-2"></i>
+                                    View Inmate Details
+                                </a>
+                                <a href="{% url 'prison:inmate_programs' program.inmate.id %}" class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-mortarboard me-2"></i>
+                                    View All Inmate Programs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

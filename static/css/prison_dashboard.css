@@ -1,0 +1,402 @@
+/* Prison Dashboard Specific Styles */
+/* Extends base.css with prison-specific enhancements */
+
+/* Prison-specific color variations */
+:root {
+    --prison-primary: #dc2626;
+    --prison-secondary: #64748b;
+    --prison-accent: #ef4444;
+    --prison-success: #059669;
+    --prison-warning: #d97706;
+    --prison-danger: #dc2626;
+    --prison-info: #0891b2;
+}
+
+/* Enhanced navigation for prison dashboard */
+.nav-item.prison-nav {
+    margin: 0.25rem 1rem;
+}
+
+.nav-link.prison-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.nav-link.prison-link:hover,
+.nav-link.prison-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(4px);
+}
+
+/* Prison-specific stat cards */
+.stat-card.prison-primary {
+    background: linear-gradient(135deg, var(--prison-primary) 0%, #ef4444 100%);
+}
+
+.stat-card.prison-accent {
+    background: linear-gradient(135deg, var(--prison-accent) 0%, #f87171 100%);
+}
+
+/* Enhanced inmate management cards */
+.inmate-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--prison-primary);
+}
+
+.inmate-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.inmate-card.new {
+    border-left-color: var(--prison-info);
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.inmate-card.warning {
+    border-left-color: var(--prison-warning);
+    background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+}
+
+.inmate-card.danger {
+    border-left-color: var(--prison-danger);
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+}
+
+.inmate-card.success {
+    border-left-color: var(--prison-success);
+    background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%);
+}
+
+/* Enhanced report cards */
+.report-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--prison-primary);
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.report-card.urgent {
+    border-left-color: var(--prison-danger);
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+}
+
+.report-card.due {
+    border-left-color: var(--prison-warning);
+    background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+}
+
+.report-card.completed {
+    border-left-color: var(--prison-success);
+    background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%);
+}
+
+/* Enhanced visitor management */
+.visitor-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--prison-primary);
+}
+
+.visitor-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.visitor-card.scheduled {
+    border-left-color: var(--prison-info);
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.visitor-card.active {
+    border-left-color: var(--prison-success);
+    background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%);
+}
+
+.visitor-card.completed {
+    border-left-color: var(--prison-secondary);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Enhanced table styling for prison dashboard */
+.table.prison-table thead th {
+    background: linear-gradient(135deg, var(--prison-primary) 0%, #ef4444 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.table.prison-table tbody tr:hover {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* Enhanced action buttons for prison */
+.btn-prison-primary {
+    background: var(--prison-primary);
+    border-color: var(--prison-primary);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-prison-primary:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    transform: translateY(-1px);
+    color: white;
+}
+
+.btn-prison-secondary {
+    background: var(--prison-secondary);
+    border-color: var(--prison-secondary);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-prison-secondary:hover {
+    background: #475569;
+    border-color: #475569;
+    transform: translateY(-1px);
+    color: white;
+}
+
+/* Enhanced quick actions for prison officers */
+.quick-actions-prison {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-action-prison {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.quick-action-prison:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--prison-accent);
+}
+
+.quick-action-prison-icon {
+    font-size: 2rem;
+    color: var(--prison-primary);
+    margin-bottom: 0.75rem;
+}
+
+.quick-action-prison-title {
+    font-weight: 600;
+    color: var(--prison-primary);
+    margin-bottom: 0.25rem;
+}
+
+.quick-action-prison-description {
+    color: var(--prison-secondary);
+    font-size: 0.875rem;
+}
+
+/* Enhanced status indicators for prison */
+.status-indicator-prison {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-indicator-prison.new {
+    background: rgba(8, 145, 178, 0.1);
+    color: var(--prison-info);
+}
+
+.status-indicator-prison.warning {
+    background: rgba(217, 119, 6, 0.1);
+    color: var(--prison-warning);
+}
+
+.status-indicator-prison.danger {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--prison-danger);
+}
+
+.status-indicator-prison.success {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--prison-success);
+}
+
+/* Enhanced modal styling for prison-specific modals */
+.modal-header.prison-modal {
+    background: linear-gradient(135deg, var(--prison-primary) 0%, #ef4444 100%);
+    color: white;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.modal-header.prison-modal .btn-close {
+    filter: invert(1);
+}
+
+/* Enhanced program management */
+.program-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--prison-primary);
+}
+
+.program-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.program-card.active {
+    border-left-color: var(--prison-success);
+    background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%);
+}
+
+.program-card.scheduled {
+    border-left-color: var(--prison-info);
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.program-card.completed {
+    border-left-color: var(--prison-secondary);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Enhanced release management */
+.release-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--prison-primary);
+}
+
+.release-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.release-card.upcoming {
+    border-left-color: var(--prison-warning);
+    background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+}
+
+.release-card.today {
+    border-left-color: var(--prison-success);
+    background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%);
+}
+
+.release-card.completed {
+    border-left-color: var(--prison-secondary);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Responsive design for prison dashboard */
+@media (max-width: 768px) {
+    .quick-actions-prison {
+        grid-template-columns: 1fr;
+    }
+    
+    .inmate-card,
+    .report-card,
+    .visitor-card,
+    .program-card,
+    .release-card {
+        padding: 1rem;
+    }
+}
+
+/* Animation for prison dashboard elements */
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.prison-dashboard-content {
+    animation: slideInFromRight 0.5s ease-out;
+}
+
+/* Enhanced badge styling for prison dashboard */
+.badge.prison-badge {
+    background: var(--prison-primary);
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.badge.prison-badge.urgent {
+    background: var(--prison-danger);
+}
+
+.badge.prison-badge.warning {
+    background: var(--prison-warning);
+}
+
+.badge.prison-badge.success {
+    background: var(--prison-success);
+}
+
+.badge.prison-badge.info {
+    background: var(--prison-info);
+}
+
+/* Enhanced sidebar styling for prison */
+.sidebar-heading-prison {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 1rem 1rem 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pass Sentence - {{ case.case_number }}{% endblock %}
+
+{% block page_title %}Pass Sentence{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Pass Sentence</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:case_detail' case.id %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Case
+                    </a>
+                </div>
+            </div>
+
+            <!-- Case Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Case Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Case Number:</strong> {{ case.case_number }}</p>
+                                    <p><strong>Case Type:</strong> {{ case.get_case_type_display }}</p>
+                                    <p><strong>Title:</strong> {{ case.title }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-{% if case.status == 'pending' %}warning{% elif case.status == 'active' %}primary{% elif case.status == 'closed' %}success{% else %}secondary{% endif %}">
+                                            {{ case.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Priority:</strong> 
+                                        <span class="badge bg-{% if case.priority == 'high' %}danger{% elif case.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                            {{ case.get_priority_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Filing Date:</strong> {{ case.filing_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sentence Form -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Sentence Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" id="sentenceForm">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="sentence_type" class="form-label">Sentence Type</label>
+                                            <select class="form-select" id="sentence_type" name="sentence_type" required>
+                                                <option value="">Select sentence type...</option>
+                                                <option value="imprisonment">Imprisonment</option>
+                                                <option value="probation">Probation</option>
+                                                <option value="community_service">Community Service</option>
+                                                <option value="fine">Fine</option>
+                                                <option value="suspended">Suspended Sentence</option>
+                                                <option value="acquittal">Acquittal</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="sentence_date" class="form-label">Sentence Date</label>
+                                            <input type="date" class="form-control" id="sentence_date" name="sentence_date" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="duration_years" class="form-label">Duration (Years)</label>
+                                            <input type="number" class="form-control" id="duration_years" name="duration_years" min="0" max="99">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="duration_months" class="form-label">Duration (Months)</label>
+                                            <input type="number" class="form-control" id="duration_months" name="duration_months" min="0" max="11">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="fine_amount" class="form-label">Fine Amount ($)</label>
+                                            <input type="number" class="form-control" id="fine_amount" name="fine_amount" min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="community_service_hours" class="form-label">Community Service Hours</label>
+                                            <input type="number" class="form-control" id="community_service_hours" name="community_service_hours" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="sentence_details" class="form-label">Sentence Details</label>
+                                    <textarea class="form-control" id="sentence_details" name="sentence_details" rows="4" placeholder="Provide detailed description of the sentence..." required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="judge_notes" class="form-label">Judge's Notes</label>
+                                    <textarea class="form-control" id="judge_notes" name="judge_notes" rows="3" placeholder="Any additional notes from the judge..."></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="conditions" class="form-label">Special Conditions</label>
+                                    <textarea class="form-control" id="conditions" name="conditions" rows="3" placeholder="Any special conditions or requirements..."></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{% url 'court:case_detail' case.id %}" class="btn btn-secondary me-md-2">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-gavel me-2"></i>Pass Sentence
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default sentence date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('sentence_date').value = today;
+    
+    // Handle form submission
+    document.getElementById('sentenceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const sentenceType = document.getElementById('sentence_type').value;
+        const sentenceDetails = document.getElementById('sentence_details').value;
+        
+        if (!sentenceType) {
+            alert('Please select a sentence type');
+            return;
+        }
+        
+        if (!sentenceDetails.trim()) {
+            alert('Please provide sentence details');
+            return;
+        }
+        
+        // Submit the form
+        this.submit();
+    });
+    
+    // Show/hide relevant fields based on sentence type
+    document.getElementById('sentence_type').addEventListener('change', function() {
+        const sentenceType = this.value;
+        
+        // Hide all duration and amount fields initially
+        document.getElementById('duration_years').parentElement.parentElement.style.display = 'none';
+        document.getElementById('fine_amount').parentElement.parentElement.style.display = 'none';
+        document.getElementById('community_service_hours').parentElement.parentElement.style.display = 'none';
+        
+        // Show relevant fields based on type
+        if (sentenceType === 'imprisonment' || sentenceType === 'probation') {
+            document.getElementById('duration_years').parentElement.parentElement.style.display = 'block';
+        } else if (sentenceType === 'fine') {
+            document.getElementById('fine_amount').parentElement.parentElement.style.display = 'block';
+        } else if (sentenceType === 'community_service') {
+            document.getElementById('community_service_hours').parentElement.parentElement.style.display = 'block';
+        }
+    });
+});
+</script>
+{% endblock %}

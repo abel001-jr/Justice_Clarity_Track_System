@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Inmate List - Justice Clarity{% endblock %}
+{% block page_title %}Inmate Management{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Inmate List</h2>
+    <a href="{% url 'prison:inmate_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Add New Inmate
+    </a>
+</div>
+
+<!-- Search and Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchInmate" placeholder="Search by name, ID, or case number...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchInmates()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="active">Active</button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="released">Released</button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="transferred">Transferred</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inmates Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Inmate ID</th>
+                        <th>Name</th>
+                        <th>Case Number</th>
+                        <th>Sentence</th>
+                        <th>Status</th>
+                        <th>Release Date</th>
+                        <th>Assigned Officer</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inmate in inmates %}
+                    <tr data-status="{{ inmate.status }}">
+                        <td><strong>{{ inmate.inmate_id }}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-secondary rounded-circle p-2 me-2">
+                                    <i class="bi bi-person text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ inmate.get_full_name }}</div>
+                                    <small class="text-muted">{{ inmate.gender|title }}, {{ inmate.date_of_birth|date:"Y" }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ inmate.case_number }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ inmate.get_sentence_type_display }}</span>
+                            {% if inmate.sentence_duration_years %}
+                                <br><small class="text-muted">{{ inmate.sentence_duration_years }}y {{ inmate.sentence_duration_months|default:0 }}m</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif inmate.status == 'released' %}
+                                <span class="badge bg-primary">Released</span>
+                            {% elif inmate.status == 'transferred' %}
+                                <span class="badge bg-warning">Transferred</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ inmate.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.expected_release_date %}
+                                {{ inmate.expected_release_date|date:"M d, Y" }}
+                                {% if inmate.is_release_approaching %}
+                                    <br><small class="text-warning">{{ inmate.days_until_release }} days left</small>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.assigned_officer %}
+                                {{ inmate.assigned_officer.get_full_name|default:inmate.assigned_officer.username }}
+                            {% else %}
+                                <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'prison:inmate_edit' inmate.id %}" class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'prison:inmate_assign' inmate.id %}" class="btn btn-outline-info" title="Assign Officer">
+                                    <i class="bi bi-person-check"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-people fs-1 d-block mb-2"></i>
+                            No inmates found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Inmate filtering
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            
+            // Update active button
+            document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter rows
+            rows.forEach(row => {
+                let show = false;
+                if (filter === 'all') {
+                    show = true;
+                } else if (row.dataset.status === filter) {
+                    show = true;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        });
+    });
+
+    // Search functionality
+    function searchInmates() {
+        const query = document.getElementById('searchInmate').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-status]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Search on Enter key
+    document.getElementById('searchInmate').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchInmates();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,1091 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Judge Dashboard - Justice Clarity{% endblock %}
+{% block page_title %}Judge Dashboard{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<!-- Enhanced Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-folder-check text-primary"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-number">{{ assigned_cases }}</div>
+            <div class="stat-label">Assigned Cases</div>
+                <div class="stat-trend">
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up"></i> +2 this week
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="bi bi-clock-history text-warning"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-number">{{ pending_decisions }}</div>
+            <div class="stat-label">Pending Decisions</div>
+                <div class="stat-trend">
+                    <small class="text-warning">
+                        <i class="bi bi-exclamation-triangle"></i> {{ urgent_cases }} urgent
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle text-success"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-number">{{ completed_cases }}</div>
+            <div class="stat-label">Completed Cases</div>
+                <div class="stat-trend">
+                    <small class="text-success">
+                        <i class="bi bi-arrow-up"></i> {{ completion_rate }}% rate
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card danger">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-event text-danger"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-number">{{ upcoming_hearings|length }}</div>
+                <div class="stat-label">Today's Hearings</div>
+                <div class="stat-trend">
+                    <small class="text-info">
+                        <i class="bi bi-clock"></i> Next: {{ next_hearing_time }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Urgent Alerts Section -->
+{% if urgent_alerts %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>
+                    <strong>Urgent Actions Required:</strong>
+                    <ul class="mb-0 mt-1">
+                        {% for alert in urgent_alerts %}
+                        <li>{{ alert.message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Enhanced Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning-charge me-2"></i>
+                    Quick Actions
+                </h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#quickActionsModal">
+                        <i class="bi bi-three-dots"></i>
+                        More Actions
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'court:case_list' %}?status=in_progress" class="btn btn-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-gavel fs-2 mb-2"></i>
+                            <span>Sentencing Queue</span>
+                            <small class="text-light">Review pending cases</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'court:report_create' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-file-earmark-text fs-2 mb-2"></i>
+                            <span>Submit Report</span>
+                            <small class="text-muted">Final case report</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'court:hearing_create' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-calendar-plus fs-2 mb-2"></i>
+                            <span>Schedule Hearing</span>
+                            <small class="text-muted">New hearing</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'court:case_list' %}?status=assigned" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-search fs-2 mb-2"></i>
+                            <span>Review Evidence</span>
+                            <small class="text-muted">Evidence analysis</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Progress Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-diagram-3 me-2"></i>
+                    Case Workflow Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <div class="workflow-step active">
+                            <div class="workflow-icon">
+                                <i class="bi bi-folder-plus"></i>
+                            </div>
+                            <h6>Assigned</h6>
+                            <span class="badge bg-primary">{{ workflow_stats.assigned }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="workflow-step">
+                            <div class="workflow-icon">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h6>Review</h6>
+                            <span class="badge bg-info">{{ workflow_stats.review }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="workflow-step">
+                            <div class="workflow-icon">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                            <h6>Hearing</h6>
+                            <span class="badge bg-warning">{{ workflow_stats.hearing }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="workflow-step">
+                            <div class="workflow-icon">
+                                <i class="bi bi-gavel"></i>
+                            </div>
+                            <h6>Decision</h6>
+                            <span class="badge bg-danger">{{ workflow_stats.decision }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="workflow-step">
+                            <div class="workflow-icon">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                            <h6>Report</h6>
+                            <span class="badge bg-secondary">{{ workflow_stats.report }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="workflow-step">
+                            <div class="workflow-icon">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <h6>Completed</h6>
+                            <span class="badge bg-success">{{ workflow_stats.completed }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="row">
+    <!-- Enhanced My Cases Section -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-folder-check me-2"></i>
+                    My Assigned Cases
+                </h5>
+                <div class="d-flex gap-2">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary active" data-filter="all">All</button>
+                    <button class="btn btn-outline-primary" data-filter="in_progress">In Progress</button>
+                    <button class="btn btn-outline-primary" data-filter="pending">Pending</button>
+                        <button class="btn btn-outline-primary" data-filter="urgent">Urgent</button>
+                    </div>
+                    <div class="input-group input-group-sm" style="width: 200px;">
+                        <input type="text" class="form-control" placeholder="Search cases..." id="caseSearch">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Case Number</th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Deadline</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for case in my_cases %}
+                            <tr data-status="{{ case.status }}" data-priority="{{ case.priority }}">
+                                <td>
+                                    <strong>{{ case.case_number }}</strong>
+                                    {% if case.priority == 'high' %}
+                                        <i class="bi bi-exclamation-triangle-fill text-danger ms-1" title="High Priority"></i>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ case.title|truncatechars:40 }}</div>
+                                    <small class="text-muted">{{ case.plaintiff }} vs {{ case.defendant }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ case.get_case_type_display }}</span>
+                                </td>
+                                <td>
+                                    {% if case.status == 'assigned' %}
+                                        <span class="badge bg-info">{{ case.get_status_display }}</span>
+                                    {% elif case.status == 'in_progress' %}
+                                        <span class="badge bg-warning">{{ case.get_status_display }}</span>
+                                    {% elif case.status == 'decided' %}
+                                        <span class="badge bg-success">{{ case.get_status_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ case.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if case.priority == 'high' %}
+                                        <span class="badge bg-danger">High</span>
+                                    {% elif case.priority == 'medium' %}
+                                        <span class="badge bg-warning">Medium</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if case.deadline %}
+                                        <span class="{% if case.deadline < today %}text-danger{% elif case.deadline < today_plus_week %}text-warning{% endif %}">
+                                            {{ case.deadline|date:"M d, Y" }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">No deadline</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'court:case_detail' case_id=case.id %}" class="btn btn-outline-primary" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        {% if case.status != 'decided' %}
+                                        <a href="{% url 'court:case_sentence' case_id=case.id %}" class="btn btn-outline-success" title="Pass Sentence">
+                                            <i class="bi bi-gavel"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{% url 'court:evidence_list' case_id=case.id %}" class="btn btn-outline-info" title="View Evidence">
+                                            <i class="bi bi-file-earmark"></i>
+                                        </a>
+                                        <button class="btn btn-outline-secondary" title="Add Notes" 
+                                                data-bs-toggle="modal" data-bs-target="#caseNotesModal" 
+                                                data-case-id="{{ case.id }}" data-case-title="{{ case.title }}">
+                                            <i class="bi bi-sticky"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-folder-x fs-1 d-block mb-2"></i>
+                                    No cases assigned
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Sidebar Content -->
+    <div class="col-lg-4">
+        <!-- Today's Schedule -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-calendar-day me-2"></i>
+                    Today's Schedule
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for hearing in today_hearings %}
+                <div class="schedule-item mb-3">
+                    <div class="d-flex align-items-start">
+                        <div class="schedule-time me-3">
+                            <div class="time">{{ hearing.scheduled_date|date:"H:i" }}</div>
+                            <div class="duration">{{ hearing.duration_minutes }}min</div>
+                    </div>
+                        <div class="schedule-content flex-grow-1">
+                        <h6 class="mb-1">
+                            <a href="{% url 'court:hearing_detail' hearing_id=hearing.id %}" class="text-decoration-none">
+                                {{ hearing.case.case_number }}
+                            </a>
+                        </h6>
+                        <small class="text-muted">
+                            {{ hearing.get_hearing_type_display }}<br>
+                            <span class="text-primary">{{ hearing.location }}</span>
+                        </small>
+                        </div>
+                        <div class="schedule-status">
+                            {% if hearing.is_completed %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-warning">Upcoming</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                    No hearings today
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-activity me-2"></i>
+                    Recent Activity
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for activity in recent_activities %}
+                <div class="activity-item d-flex align-items-start mb-3">
+                    <div class="activity-icon me-3">
+                        {% if activity.type == 'sentence' %}
+                            <i class="bi bi-gavel text-success"></i>
+                        {% elif activity.type == 'report' %}
+                            <i class="bi bi-file-text text-primary"></i>
+                        {% elif activity.type == 'hearing' %}
+                            <i class="bi bi-calendar-event text-warning"></i>
+                        {% else %}
+                            <i class="bi bi-circle text-secondary"></i>
+                        {% endif %}
+                    </div>
+                    <div class="activity-content flex-grow-1">
+                        <div class="activity-text">{{ activity.description }}</div>
+                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-activity fs-2 d-block mb-2"></i>
+                    No recent activity
+                </div>
+                {% endfor %}
+    </div>
+</div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>
+                    This Month's Stats
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="quick-stat">
+                            <div class="stat-number text-primary">{{ monthly_stats.cases_completed }}</div>
+                            <div class="stat-label">Cases Completed</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="quick-stat">
+                            <div class="stat-number text-success">{{ monthly_stats.sentences_passed }}</div>
+                            <div class="stat-label">Sentences Passed</div>
+                    </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="quick-stat">
+                            <div class="stat-number text-warning">{{ monthly_stats.hearings_conducted }}</div>
+                            <div class="stat-label">Hearings Conducted</div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="quick-stat">
+                            <div class="stat-number text-info">{{ monthly_stats.reports_submitted }}</div>
+                            <div class="stat-label">Reports Submitted</div>
+                        </div>
+                    </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Quick Access Panel -->
+<div class="floating-panel" id="floatingPanel">
+    <div class="floating-panel-header">
+        <h6 class="mb-0">Quick Access</h6>
+        <button class="btn-close btn-close-white" onclick="toggleFloatingPanel()"></button>
+            </div>
+    <div class="floating-panel-content">
+        <div class="quick-access-item" onclick="window.location.href='{% url 'court:case_list' %}?status=in_progress'">
+            <i class="bi bi-gavel"></i>
+            <span>Sentencing Queue</span>
+                    </div>
+        <div class="quick-access-item" onclick="window.location.href='{% url 'court:case_list' %}?status=assigned'">
+            <i class="bi bi-search"></i>
+            <span>Review Evidence</span>
+                    </div>
+        <div class="quick-access-item" onclick="window.location.href='{% url 'court:case_list' %}'">
+            <i class="bi bi-sticky"></i>
+            <span>Case Notes</span>
+                    </div>
+        <div class="quick-access-item" onclick="window.location.href='{% url 'court:hearing_create' %}'">
+            <i class="bi bi-calendar-plus"></i>
+            <span>Schedule Hearing</span>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Dashboard Sections -->
+<div class="row">
+    <!-- Case Calendar Section -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi bi-calendar-week me-2"></i>
+                    Case Calendar
+                </h6>
+                <a href="{% url 'court:hearing_list' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-right"></i> View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if upcoming_hearings %}
+                    {% for hearing in upcoming_hearings|slice:":3" %}
+                    <div class="calendar-item d-flex align-items-center mb-2">
+                        <div class="calendar-date me-3 text-center">
+                            <div class="date-day">{{ hearing.scheduled_date|date:"d" }}</div>
+                            <div class="date-month">{{ hearing.scheduled_date|date:"M" }}</div>
+                        </div>
+                        <div class="calendar-content flex-grow-1">
+                            <div class="case-title">{{ hearing.case.case_number }}</div>
+                            <small class="text-muted">{{ hearing.get_hearing_type_display }}</small>
+                        </div>
+                        <div class="calendar-time">
+                            {{ hearing.scheduled_date|date:"H:i" }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                        No upcoming hearings
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentencing Queue Section -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi bi-gavel me-2"></i>
+                    Sentencing Queue
+                </h6>
+                <a href="{% url 'court:case_list' %}?status=in_progress" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-right"></i> View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if my_cases %}
+                    {% for case in my_cases|slice:":3" %}
+                        {% if case.status == 'in_progress' %}
+                        <div class="queue-item d-flex align-items-center mb-2">
+                            <div class="queue-priority me-3">
+                                {% if case.priority == 'high' %}
+                                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                {% elif case.priority == 'medium' %}
+                                    <i class="bi bi-exclamation-circle text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-circle text-success"></i>
+                                {% endif %}
+                            </div>
+                            <div class="queue-content flex-grow-1">
+                                <div class="case-title">{{ case.case_number }}</div>
+                                <small class="text-muted">{{ case.title|truncatechars:30 }}</small>
+                            </div>
+                            <div class="queue-status">
+                                <span class="badge bg-warning">Ready for Decision</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-gavel fs-2 d-block mb-2"></i>
+                            No cases ready for sentencing
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-gavel fs-2 d-block mb-2"></i>
+                        No cases assigned
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- My Verdicts Section -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi bi-check-circle me-2"></i>
+                    My Verdicts
+                </h6>
+                <a href="{% url 'court:case_list' %}?status=decided" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-right"></i> View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if my_cases %}
+                    {% for case in my_cases %}
+                        {% if case.status == 'decided' %}
+                        <div class="verdict-item d-flex align-items-center mb-2">
+                            <div class="verdict-icon me-3 text-success">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="verdict-content flex-grow-1">
+                                <div class="case-title">{{ case.case_number }}</div>
+                                <small class="text-muted">{{ case.title|truncatechars:30 }}</small>
+                            </div>
+                            <div class="verdict-date">
+                                <small class="text-muted">{{ case.decision_date|date:"M d"|default:"N/A" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
+                            No completed cases yet
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
+                        No cases assigned
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentence Templates Section -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Sentence Templates
+                </h6>
+                <a href="{% url 'court:case_list' %}?status=in_progress" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-right"></i> View Queue
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="template-item d-flex align-items-center mb-2">
+                    <div class="template-icon me-3 text-primary">
+                        <i class="bi bi-file-text"></i>
+                    </div>
+                    <div class="template-content flex-grow-1">
+                        <div class="template-name">Standard Imprisonment</div>
+                        <small class="text-muted">Criminal cases</small>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-sm btn-outline-primary">Use</button>
+                    </div>
+                </div>
+                <div class="template-item d-flex align-items-center mb-2">
+                    <div class="template-icon me-3 text-success">
+                        <i class="bi bi-file-text"></i>
+                    </div>
+                    <div class="template-content flex-grow-1">
+                        <div class="template-name">Probation Order</div>
+                        <small class="text-muted">Non-violent offenses</small>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-sm btn-outline-primary">Use</button>
+                    </div>
+                </div>
+                <div class="template-item d-flex align-items-center mb-2">
+                    <div class="template-icon me-3 text-warning">
+                        <i class="bi bi-file-text"></i>
+                    </div>
+                    <div class="template-content flex-grow-1">
+                        <div class="template-name">Community Service</div>
+                        <small class="text-muted">Minor violations</small>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-sm btn-outline-primary">Use</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Modals -->
+{% include 'core/modals/pass_sentence_modal.html' %}
+{% include 'core/modals/evidence_review_modal.html' %}
+{% include 'core/modals/case_notes_modal.html' %}
+{% include 'core/modals/quick_actions_modal.html' %}
+{% include 'core/modals/case_calendar_modal.html' %}
+{% include 'core/modals/sentencing_queue_modal.html' %}
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Enhanced Dashboard Styles */
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    color: #6c757d;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card.warning {
+    border-left-color: #ffc107;
+}
+
+.stat-card.success {
+    border-left-color: #28a745;
+}
+
+.stat-card.danger {
+    border-left-color: #dc3545;
+}
+
+.stat-card .stat-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.stat-content .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.stat-content .stat-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-content .stat-trend {
+    font-size: 0.75rem;
+}
+
+.workflow-step {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.workflow-step.active {
+    background: #f8f9fa;
+    border: 2px solid #007bff;
+}
+
+.workflow-icon {
+    font-size: 2rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.workflow-step.active .workflow-icon {
+    color: #007bff;
+}
+
+.schedule-item {
+    border-left: 3px solid #007bff;
+    padding-left: 1rem;
+}
+
+.schedule-time {
+    text-align: center;
+    min-width: 60px;
+}
+
+.schedule-time .time {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.schedule-time .duration {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.activity-item {
+    border-bottom: 1px solid #f1f3f4;
+    padding-bottom: 0.75rem;
+}
+
+.activity-icon {
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.quick-stat {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.quick-stat .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.quick-stat .stat-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.floating-panel {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #007bff;
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    min-width: 200px;
+    display: none;
+}
+
+.floating-panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.floating-panel-content {
+    padding: 1rem;
+}
+
+.quick-access-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.quick-access-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.quick-access-item i {
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+
+/* New Dashboard Section Styles */
+.calendar-item, .queue-item, .verdict-item, .template-item {
+    padding: 0.75rem;
+    border-radius: 6px;
+    background: #f8f9fa;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.calendar-item:hover, .queue-item:hover, .verdict-item:hover, .template-item:hover {
+    background: #e9ecef;
+    transform: translateX(2px);
+}
+
+.calendar-date {
+    min-width: 50px;
+}
+
+.date-day {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--judge-primary);
+    line-height: 1;
+}
+
+.date-month {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.calendar-time {
+    font-weight: bold;
+    color: var(--judge-primary);
+    min-width: 60px;
+    text-align: right;
+}
+
+.case-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.queue-priority, .verdict-icon, .template-icon {
+    min-width: 30px;
+    text-align: center;
+}
+
+.template-actions {
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .floating-panel {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        min-width: auto;
+    }
+    
+    .workflow-step {
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enhanced Dashboard JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Case filtering with search
+    const caseSearch = document.getElementById('caseSearch');
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const caseRows = document.querySelectorAll('tbody tr[data-status]');
+    
+    // Search functionality
+    caseSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterCases();
+    });
+    
+    // Filter functionality
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            filterCases();
+        });
+    });
+
+    function filterCases() {
+        const searchTerm = caseSearch.value.toLowerCase();
+        const activeFilter = document.querySelector('[data-filter].active').dataset.filter;
+        
+        caseRows.forEach(row => {
+            const status = row.dataset.status;
+            const priority = row.dataset.priority;
+            const text = row.textContent.toLowerCase();
+            
+            const matchesSearch = text.includes(searchTerm);
+            const matchesFilter = activeFilter === 'all' || 
+                                (activeFilter === 'urgent' && priority === 'high') ||
+                                status === activeFilter;
+            
+            row.style.display = matchesSearch && matchesFilter ? '' : 'none';
+        });
+    }
+    
+    // Floating panel toggle
+    window.toggleFloatingPanel = function() {
+        const panel = document.getElementById('floatingPanel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    };
+    
+    // Show floating panel on scroll
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+        const st = window.pageYOffset || document.documentElement.scrollTop;
+        const panel = document.getElementById('floatingPanel');
+        
+        if (st > lastScrollTop && st > 200) {
+            // Scrolling down
+            panel.style.display = 'block';
+        } else if (st < lastScrollTop) {
+            // Scrolling up
+            panel.style.display = 'none';
+        }
+        
+        lastScrollTop = st;
+    });
+    
+    // Modal helper function
+    window.openModal = function(modalId) {
+        const modal = new bootstrap.Modal(document.getElementById(modalId));
+        modal.show();
+    };
+    
+    // Case notes modal
+    const caseNotesModal = document.getElementById('caseNotesModal');
+    if (caseNotesModal) {
+        caseNotesModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const caseId = button.getAttribute('data-case-id');
+            const caseTitle = button.getAttribute('data-case-title');
+            
+            const modal = this;
+            modal.querySelector('#caseId').value = caseId;
+            modal.querySelector('#caseTitle').textContent = caseTitle;
+        });
+    }
+    
+    // Enhanced form submissions with loading states
+    const forms = ['sentenceForm', 'reportForm', 'notesForm'];
+    forms.forEach(formId => {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Processing...';
+        submitBtn.disabled = true;
+        
+                // Simulate form processing
+        setTimeout(() => {
+                    showAlert('Action completed successfully!', 'success');
+            
+                    const modal = bootstrap.Modal.getInstance(this.closest('.modal'));
+            modal.hide();
+            
+            this.reset();
+            
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 1500);
+            });
+        }
+    });
+    
+    // Enhanced alert system
+    window.showAlert = function(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const content = document.querySelector('.row.mb-4');
+        content.insertBefore(alertDiv, content.firstChild);
+        
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    };
+    
+    // Auto-refresh dashboard data every 5 minutes
+    setInterval(() => {
+        // Refresh statistics and case data
+        location.reload();
+    }, 300000);
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inmate Reports - {{ inmate.get_full_name }} - Prison Management{% endblock %}
+{% block page_title %}Inmate Reports{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-file-text me-2"></i>
+            Reports for {{ inmate.get_full_name }}
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Inmate Details
+            </a>
+            <a href="{% url 'prison:report_create' %}?inmate_id={{ inmate.id }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Reports List -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-file-text me-2"></i>
+                            Reports ({{ reports|length }})
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="filterReports('all')">All</button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="filterReports('pending')">Pending</button>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="filterReports('reviewed')">Reviewed</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if reports %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for report in reports %}
+                                    <tr class="report-row" data-status="{% if report.is_reviewed %}reviewed{% else %}pending{% endif %}">
+                                        <td>
+                                            <strong>{{ report.title }}</strong>
+                                            {% if report.priority == 'urgent' %}
+                                                <i class="bi bi-exclamation-triangle-fill text-danger ms-1"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ report.get_report_type_display }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if report.priority == 'urgent' %}bg-danger{% elif report.priority == 'high' %}bg-warning{% elif report.priority == 'medium' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                {{ report.get_priority_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if report.is_reviewed %}bg-success{% else %}bg-warning{% endif %}">
+                                                {% if report.is_reviewed %}Reviewed{% else %}Pending{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ report.submission_date|date:"M d, Y H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'prison:report_detail' report.id %}" class="btn btn-outline-primary" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                {% if not report.is_reviewed %}
+                                                <a href="{% url 'prison:report_review' report.id %}" class="btn btn-outline-warning" title="Review Report">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-file-text display-1 text-muted"></i>
+                            <h5 class="mt-3">No Reports Found</h5>
+                            <p class="text-muted">This inmate doesn't have any reports yet.</p>
+                            <a href="{% url 'prison:report_create' %}?inmate_id={{ inmate.id }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Create First Report
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Inmate Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-person me-2"></i>
+                        Inmate Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Name:</strong> {{ inmate.get_full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>ID:</strong> {{ inmate.inmate_id }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Status:</strong> 
+                        <span class="badge {% if inmate.status == 'active' %}bg-success{% elif inmate.status == 'medical' %}bg-warning{% elif inmate.status == 'transferred' %}bg-info{% else %}bg-secondary{% endif %}">
+                            {{ inmate.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Age:</strong> {{ inmate.get_age }} years
+                    </div>
+                    {% if inmate.offense %}
+                    <div class="mb-0">
+                        <strong>Offense:</strong> {{ inmate.offense }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Report Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Report Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-primary">{{ reports|length }}</span>
+                            </div>
+                            <small class="text-muted">Total Reports</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-warning">{{ reports|rejectattr:"is_reviewed"|list|length }}</span>
+                            </div>
+                            <small class="text-muted">Pending Review</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-success">{{ reports|selectattr:"is_reviewed"|list|length }}</span>
+                            </div>
+                            <small class="text-muted">Reviewed</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-danger">{{ reports|selectattr:"priority"|selectattr:"priority"|list|length }}</span>
+                            </div>
+                            <small class="text-muted">Urgent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye me-2"></i>
+                            View Inmate Details
+                        </a>
+                        <a href="{% url 'prison:report_create' %}?inmate_id={{ inmate.id }}" class="btn btn-outline-success">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Create New Report
+                        </a>
+                        <a href="{% url 'prison:inmate_visitors' inmate.id %}" class="btn btn-outline-info">
+                            <i class="bi bi-people me-2"></i>
+                            View Visitors
+                        </a>
+                        <a href="{% url 'prison:inmate_programs' inmate.id %}" class="btn btn-outline-warning">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            View Programs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterReports(status) {
+    const rows = document.querySelectorAll('.report-row');
+    
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Update button states
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize with all reports shown
+    document.querySelector('.btn-group .btn:first-child').classList.add('active');
+});
+</script>
+{% endblock %}

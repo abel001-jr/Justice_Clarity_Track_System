@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Release Management - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-door-open me-2"></i>
+                    Release Management
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:release_create' %}" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Process Release
+                    </a>
+                    <a href="{% url 'prison:upcoming_releases' %}" class="btn btn-warning">
+                        <i class="bi bi-calendar-check me-2"></i>
+                        View Upcoming Releases
+                    </a>
+                </div>
+            </div>
+
+<!-- Release Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ inmates|length }}</div>
+            <div class="stat-label">Total Inmates</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card warning">
+            <div class="stat-number">{{ upcoming_count|default:0 }}</div>
+            <div class="stat-label">Upcoming Releases</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card success">
+            <div class="stat-number">{{ released_count|default:0 }}</div>
+            <div class="stat-label">Released This Month</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card info">
+            <div class="stat-number">{{ transferred_count|default:0 }}</div>
+            <div class="stat-label">Transferred</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchRelease" placeholder="Search inmates...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchReleases()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="released">Released</option>
+                    <option value="transferred">Transferred</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="timelineFilter">
+                    <option value="">All Timeline</option>
+                    <option value="this-week">This Week</option>
+                    <option value="this-month">This Month</option>
+                    <option value="next-month">Next Month</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Releases Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Inmate ID</th>
+                        <th>Name</th>
+                        <th>Case Number</th>
+                        <th>Sentence</th>
+                        <th>Status</th>
+                        <th>Expected Release</th>
+                        <th>Days Remaining</th>
+                        <th>Release Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inmate in inmates %}
+                    <tr data-status="{{ inmate.status }}" data-release-date="{{ inmate.expected_release_date|date:'Y-m-d' }}">
+                        <td><strong>{{ inmate.inmate_id }}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-secondary rounded-circle p-2 me-2">
+                                    <i class="bi bi-person text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ inmate.get_full_name }}</div>
+                                    <small class="text-muted">{{ inmate.gender|title }}, {{ inmate.date_of_birth|date:"Y" }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ inmate.case_number }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ inmate.get_sentence_type_display }}</span>
+                            {% if inmate.sentence_duration_years %}
+                                <br><small class="text-muted">{{ inmate.sentence_duration_years }}y {{ inmate.sentence_duration_months|default:0 }}m</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif inmate.status == 'released' %}
+                                <span class="badge bg-primary">Released</span>
+                            {% elif inmate.status == 'transferred' %}
+                                <span class="badge bg-warning">Transferred</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ inmate.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.expected_release_date %}
+                                {{ inmate.expected_release_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.expected_release_date %}
+                                {% if inmate.days_until_release %}
+                                    {% if inmate.days_until_release <= 0 %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% elif inmate.days_until_release <= 7 %}
+                                        <span class="badge bg-warning">{{ inmate.days_until_release }} days</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ inmate.days_until_release }} days</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if inmate.status == 'released' %}
+                                <span class="badge bg-success">Released</span>
+                                {% if inmate.actual_release_date %}
+                                    <br><small class="text-muted">{{ inmate.actual_release_date|date:"M d, Y" }}</small>
+                                {% endif %}
+                            {% elif inmate.status == 'transferred' %}
+                                <span class="badge bg-warning">Transferred</span>
+                            {% elif inmate.expected_release_date %}
+                                {% if inmate.days_until_release <= 0 %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                {% elif inmate.days_until_release <= 7 %}
+                                    <span class="badge bg-warning">Imminent</span>
+                                {% else %}
+                                    <span class="badge bg-info">Scheduled</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">Not Scheduled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if inmate.status == 'active' and inmate.expected_release_date %}
+                                <button class="btn btn-outline-success" title="Prepare Release" onclick="prepareRelease({{ inmate.id }})">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                                {% endif %}
+                                <button class="btn btn-outline-info" title="View Reports" onclick="viewReports({{ inmate.id }})">
+                                    <i class="bi bi-file-text"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                            No inmates found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Release filtering
+    function filterReleases() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const timelineFilter = document.getElementById('timelineFilter').value;
+        const rows = document.querySelectorAll('tbody tr[data-status]');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (statusFilter && row.dataset.status !== statusFilter) {
+                show = false;
+            }
+            
+            if (timelineFilter) {
+                const releaseDate = row.dataset.releaseDate;
+                if (releaseDate) {
+                    const today = new Date();
+                    const release = new Date(releaseDate);
+                    const diffTime = release - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (timelineFilter === 'this-week' && (diffDays < 0 || diffDays > 7)) {
+                        show = false;
+                    } else if (timelineFilter === 'this-month' && (diffDays < 0 || diffDays > 30)) {
+                        show = false;
+                    } else if (timelineFilter === 'next-month' && (diffDays < 30 || diffDays > 60)) {
+                        show = false;
+                    } else if (timelineFilter === 'overdue' && diffDays >= 0) {
+                        show = false;
+                    }
+                } else if (timelineFilter !== 'overdue') {
+                    show = false;
+                }
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Search functionality
+    function searchReleases() {
+        const query = document.getElementById('searchRelease').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-status]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Event listeners
+    document.getElementById('statusFilter').addEventListener('change', filterReleases);
+    document.getElementById('timelineFilter').addEventListener('change', filterReleases);
+    
+    document.getElementById('searchRelease').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchReleases();
+        }
+    });
+
+    // Action functions
+    function prepareRelease(inmateId) {
+        if (confirm('Are you sure you want to prepare the release for this inmate?')) {
+            // This would typically open a release preparation form
+            alert('Release preparation functionality will be implemented.');
+        }
+    }
+
+    function viewReports(inmateId) {
+        window.location.href = `/prison/inmates/${inmateId}/reports/`;
+    }
+</script>
+{% endblock %}

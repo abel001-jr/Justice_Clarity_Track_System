@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Evidence - {{ case.case_number }}{% endblock %}
+
+{% block page_title %}Evidence{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Case Evidence</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:case_detail' case.id %}" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Case
+                    </a>
+                    <a href="{% url 'court:evidence_add' case.id %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Add Evidence
+                    </a>
+                </div>
+            </div>
+
+            <!-- Case Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Case Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Case Number:</strong> {{ case.case_number }}</p>
+                                    <p><strong>Case Type:</strong> {{ case.get_case_type_display }}</p>
+                                    <p><strong>Title:</strong> {{ case.title }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-{% if case.status == 'pending' %}warning{% elif case.status == 'active' %}primary{% elif case.status == 'closed' %}success{% else %}secondary{% endif %}">
+                                            {{ case.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Priority:</strong> 
+                                        <span class="badge bg-{% if case.priority == 'high' %}danger{% elif case.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                            {{ case.get_priority_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Filing Date:</strong> {{ case.filing_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence List -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Evidence Items</h5>
+                                <div class="input-group" style="width: 300px;">
+                                    <input type="text" class="form-control" id="evidenceSearch" placeholder="Search evidence...">
+                                    <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if evidence %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="evidenceTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Evidence ID</th>
+                                                <th>Type</th>
+                                                <th>Description</th>
+                                                <th>Submitted By</th>
+                                                <th>Submission Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in evidence %}
+                                            <tr>
+                                                <td>
+                                                    <span class="badge bg-secondary">#{{ item.id }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{% if item.evidence_type == 'document' %}info{% elif item.evidence_type == 'physical' %}warning{% elif item.evidence_type == 'digital' %}primary{% else %}secondary{% endif %}">
+                                                        {{ item.get_evidence_type_display }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="text-truncate" style="max-width: 200px;" title="{{ item.description }}">
+                                                        {{ item.description|truncatechars:50 }}
+                                                    </div>
+                                                </td>
+                                                <td>{{ item.submitted_by.get_full_name|default:item.submitted_by.username }}</td>
+                                                <td>{{ item.submission_date|date:"M d, Y" }}</td>
+                                                <td>
+                                                    <span class="badge bg-{% if item.status == 'pending' %}warning{% elif item.status == 'approved' %}success{% elif item.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                                        {{ item.get_status_display }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{% url 'court:evidence_detail' item.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        {% if item.status == 'pending' %}
+                                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="updateEvidenceStatus({{ item.id }}, 'approved')" title="Approve">
+                                                            <i class="bi bi-check"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="updateEvidenceStatus({{ item.id }}, 'rejected')" title="Reject">
+                                                            <i class="bi bi-x"></i>
+                                                        </button>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="bi bi-folder-x fs-1 text-muted mb-3"></i>
+                                    <h5 class="text-muted">No Evidence Found</h5>
+                                    <p class="text-muted">This case doesn't have any evidence items yet.</p>
+                                    <a href="{% url 'court:evidence_add' case.id %}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>Add First Evidence Item
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Statistics -->
+            {% if evidence %}
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-folder fs-1 text-primary mb-2"></i>
+                            <h4 class="card-title">{{ evidence|length }}</h4>
+                            <p class="card-text text-muted">Total Items</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-file-text fs-1 text-info mb-2"></i>
+                            <h4 class="card-title">{{ evidence|dictsort:"evidence_type"|length }}</h4>
+                            <p class="card-text text-muted">Documents</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
+                            <h4 class="card-title">{{ evidence|dictsort:"status"|length }}</h4>
+                            <p class="card-text text-muted">Approved</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-clock fs-1 text-warning mb-2"></i>
+                            <h4 class="card-title">{{ evidence|dictsort:"status"|length }}</h4>
+                            <p class="card-text text-muted">Pending</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('evidenceSearch');
+    const clearButton = document.getElementById('clearSearch');
+    const table = document.getElementById('evidenceTable');
+    
+    if (searchInput && table) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        clearButton.addEventListener('click', function() {
+            searchInput.value = '';
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => row.style.display = '');
+        });
+    }
+});
+
+function updateEvidenceStatus(evidenceId, status) {
+    if (confirm(`Are you sure you want to ${status} this evidence item?`)) {
+        // This would typically make an AJAX call to update the status
+        // For now, we'll just show a success message
+        alert(`Evidence status updated to ${status}`);
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

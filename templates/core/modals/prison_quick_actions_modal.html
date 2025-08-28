@@ -1,0 +1,251 @@
+<!-- Prison Quick Actions Modal -->
+<div class="modal fade" id="prisonQuickActionsModal" tabindex="-1" aria-labelledby="prisonQuickActionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header prison-modal">
+                <h5 class="modal-title" id="prisonQuickActionsModalLabel">
+                    <i class="bi bi-lightning-charge me-2"></i>
+                    Quick Actions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Inmate Management -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-people me-2"></i>
+                            Inmate Management
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('addInmate')">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Add New Inmate
+                            </button>
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('searchInmate')">
+                                <i class="bi bi-search me-2"></i>
+                                Search Inmates
+                            </button>
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('inmateTransfer')">
+                                <i class="bi bi-arrow-left-right me-2"></i>
+                                Transfer Inmate
+                            </button>
+                            <button class="btn btn-outline-primary text-start" onclick="quickAction('medicalCheck')">
+                                <i class="bi bi-heart-pulse me-2"></i>
+                                Medical Check
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Reports & Documentation -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-success mb-3">
+                            <i class="bi bi-file-text me-2"></i>
+                            Reports & Documentation
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('submitReport')">
+                                <i class="bi bi-file-earmark-plus me-2"></i>
+                                Submit Report
+                            </button>
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('urgentReport')">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Urgent Report
+                            </button>
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('viewReports')">
+                                <i class="bi bi-file-text me-2"></i>
+                                View Reports
+                            </button>
+                            <button class="btn btn-outline-success text-start" onclick="quickAction('exportData')">
+                                <i class="bi bi-download me-2"></i>
+                                Export Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Visitor Management -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-info mb-3">
+                            <i class="bi bi-person-check me-2"></i>
+                            Visitor Management
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('logVisitor')">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Log Visitor
+                            </button>
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('scheduleVisit')">
+                                <i class="bi bi-calendar-plus me-2"></i>
+                                Schedule Visit
+                            </button>
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('visitorList')">
+                                <i class="bi bi-people me-2"></i>
+                                Visitor List
+                            </button>
+                            <button class="btn btn-outline-info text-start" onclick="quickAction('visitorSearch')">
+                                <i class="bi bi-search me-2"></i>
+                                Search Visitors
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Programs & Activities -->
+                    <div class="col-md-6 mb-4">
+                        <h6 class="text-warning mb-3">
+                            <i class="bi bi-book me-2"></i>
+                            Programs & Activities
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('addProgram')">
+                                <i class="bi bi-calendar-plus me-2"></i>
+                                Add Program
+                            </button>
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('enrollInmate')">
+                                <i class="bi bi-person-check me-2"></i>
+                                Enroll Inmate
+                            </button>
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('programSchedule')">
+                                <i class="bi bi-calendar-week me-2"></i>
+                                Program Schedule
+                            </button>
+                            <button class="btn btn-outline-warning text-start" onclick="quickAction('attendance')">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Take Attendance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Actions -->
+                <div class="mt-4">
+                    <h6 class="text-secondary mb-3">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Recent Actions
+                    </h6>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-file-earmark-plus text-success me-2"></i>
+                                Submitted behavioral report for Inmate #1234
+                            </div>
+                            <small class="text-muted">2 minutes ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-person-plus text-primary me-2"></i>
+                                Logged visitor for Inmate #1234
+                            </div>
+                            <small class="text-muted">15 minutes ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-calendar-plus text-warning me-2"></i>
+                                Added new educational program
+                            </div>
+                            <small class="text-muted">1 hour ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.prison-modal {
+    background: linear-gradient(135deg, var(--prison-primary) 0%, #ef4444 100%);
+    color: white;
+    border-radius: 1rem 1rem 0 0;
+}
+
+.prison-modal .btn-close {
+    filter: invert(1);
+}
+
+#prisonQuickActionsModal .btn {
+    transition: all 0.2s ease;
+}
+
+#prisonQuickActionsModal .btn:hover {
+    transform: translateX(4px);
+}
+
+#prisonQuickActionsModal .list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+}
+
+#prisonQuickActionsModal .list-group-item:hover {
+    background: #f8f9fa;
+}
+</style>
+
+<script>
+function quickAction(action) {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('prisonQuickActionsModal'));
+    
+    switch (action) {
+        case 'addInmate':
+            window.location.href = '{% url "prison:inmate_create" %}';
+            break;
+        case 'submitReport':
+            modal.hide();
+            setTimeout(() => {
+                const reportModal = new bootstrap.Modal(document.getElementById('prisonReportModal'));
+                reportModal.show();
+            }, 300);
+            break;
+        case 'urgentReport':
+            modal.hide();
+            setTimeout(() => {
+                const urgentModal = new bootstrap.Modal(document.getElementById('prisonUrgentReportModal'));
+                urgentModal.show();
+            }, 300);
+            break;
+        case 'logVisitor':
+            window.location.href = '{% url "prison:visitor_create" %}';
+            break;
+        case 'addProgram':
+            window.location.href = '{% url "prison:program_create" %}';
+            break;
+        case 'searchInmate':
+            showAlert('Inmate search functionality will be implemented in the backend.', 'info');
+            break;
+        case 'inmateTransfer':
+            showAlert('Inmate transfer functionality will be implemented in the backend.', 'info');
+            break;
+        case 'medicalCheck':
+            showAlert('Medical check functionality will be implemented in the backend.', 'info');
+            break;
+        case 'viewReports':
+            window.location.href = '{% url "prison:report_list" %}';
+            break;
+        case 'exportData':
+            showAlert('Data export functionality will be implemented in the backend.', 'info');
+            break;
+        case 'scheduleVisit':
+            showAlert('Visit scheduling functionality will be implemented in the backend.', 'info');
+            break;
+        case 'visitorList':
+            window.location.href = '{% url "prison:visitor_list" %}';
+            break;
+        case 'visitorSearch':
+            showAlert('Visitor search functionality will be implemented in the backend.', 'info');
+            break;
+        case 'enrollInmate':
+            showAlert('Inmate enrollment functionality will be implemented in the backend.', 'info');
+            break;
+        case 'programSchedule':
+            window.location.href = '{% url "prison:program_list" %}';
+            break;
+        case 'attendance':
+            showAlert('Attendance tracking functionality will be implemented in the backend.', 'info');
+            break;
+        default:
+            showAlert('Action not implemented yet.', 'warning');
+    }
+}
+</script>

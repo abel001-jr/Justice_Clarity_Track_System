@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Program - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-mortarboard me-2"></i>
+                    Create Program
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:program_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Programs
+                    </a>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Program Form -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clipboard-plus me-2"></i>
+                                Program Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="inmate_id" class="form-label">Inmate *</label>
+                                        <select class="form-select" id="inmate_id" name="inmate_id" required>
+                                            <option value="">Select Inmate</option>
+                                            {% for inmate in inmates %}
+                                                <option value="{{ inmate.id }}">
+                                                    {{ inmate.inmate_id }} - {{ inmate.get_full_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="program_name" class="form-label">Program Name *</label>
+                                        <input type="text" class="form-control" id="program_name" name="program_name" 
+                                               placeholder="Enter program name" required>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="program_type" class="form-label">Program Type *</label>
+                                        <select class="form-select" id="program_type" name="program_type" required>
+                                            <option value="">Select Type</option>
+                                            <option value="education">Education</option>
+                                            <option value="vocational">Vocational Training</option>
+                                            <option value="counseling">Counseling</option>
+                                            <option value="therapy">Therapy</option>
+                                            <option value="work">Work Program</option>
+                                            <option value="religious">Religious Program</option>
+                                            <option value="recreation">Recreation</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="instructor" class="form-label">Instructor</label>
+                                        <input type="text" class="form-control" id="instructor" name="instructor" 
+                                               placeholder="Enter instructor name">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="start_date" class="form-label">Start Date *</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expected_end_date" class="form-label">Expected End Date *</label>
+                                        <input type="date" class="form-control" id="expected_end_date" name="expected_end_date" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Program Description *</label>
+                                    <textarea class="form-control" id="description" name="description" rows="4" 
+                                              placeholder="Describe the program objectives, curriculum, and expected outcomes..." required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Additional Notes</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                              placeholder="Enter any additional notes or special requirements..."></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-plus-circle me-2"></i>
+                                        Create Program
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Program Guidelines -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Program Guidelines
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Ensure inmate meets program requirements
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Set realistic start and end dates
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Provide clear program description
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Assign appropriate instructor if applicable
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    Consider inmate's schedule and availability
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Program Types -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-list-ul me-2"></i>
+                                Available Program Types
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <strong>Education:</strong> Academic courses, literacy programs<br>
+                                        <strong>Vocational:</strong> Job training, skills development<br>
+                                        <strong>Counseling:</strong> Mental health, substance abuse<br>
+                                        <strong>Therapy:</strong> Physical, occupational therapy
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <strong>Work:</strong> Job assignments, maintenance<br>
+                                        <strong>Religious:</strong> Faith-based programs<br>
+                                        <strong>Recreation:</strong> Sports, arts, leisure activities
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="bi bi-lightning me-2"></i>
+                                Quick Actions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'prison:program_list' %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-list me-2"></i>
+                                    View All Programs
+                                </a>
+                                <a href="{% url 'prison:inmate_list' %}" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-people me-2"></i>
+                                    View All Inmates
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+// Auto-set start date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('start_date').value = today;
+    
+    // Set expected end date to 3 months from today
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+    document.getElementById('expected_end_date').value = threeMonthsFromNow.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

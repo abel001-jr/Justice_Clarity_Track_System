@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Visitor Logs - Justice Clarity{% endblock %}
+{% block page_title %}Visitor Management{% endblock %}
+
+{% block sidebar_nav %}
+{{ block.super }}
+<div class="nav-item">
+    <a href="{% url 'prison:dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:visitor_list' %}" class="nav-link active">
+        <i class="bi bi-person-check"></i>
+        Visitors
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:program_list' %}" class="nav-link">
+        <i class="bi bi-book"></i>
+        Programs
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:release_list' %}" class="nav-link">
+        <i class="bi bi-calendar-event"></i>
+        Releases
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Visitor Logs</h2>
+    <a href="{% url 'prison:visitor_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Log Completed Visit
+    </a>
+</div>
+
+<!-- Filters and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchVisitor" placeholder="Search Guest...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchVisitors()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="typeFilter">
+                    <option value="">All Visit Types</option>
+                    <option value="family">Family Visit</option>
+                    <option value="legal">Legal Visit</option>
+                    <option value="official">Official Visit</option>
+                    <option value="medical">Medical Visit</option>
+                    <option value="religious">Religious Visit</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="dateFilter" placeholder="Filter by date">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visitors Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Visit ID</th>
+                        <th>Inmate</th>
+                        <th>Visitor</th>
+                        <th>Visit Type</th>
+                        <th>Date & Time</th>
+                        <th>Duration</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in visitors %}
+                    <tr data-type="{{ visitor.visit_type }}" data-date="{{ visitor.visit_date|date:'Y-m-d' }}">
+                        <td><strong>#{{ visitor.id }}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-secondary rounded-circle p-2 me-2">
+                                    <i class="bi bi-person text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ visitor.inmate.get_full_name }}</div>
+                                    <small class="text-muted">ID: {{ visitor.inmate.inmate_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ visitor.visitor_name }}</div>
+                            <small class="text-muted">{{ visitor.relationship }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ visitor.get_visit_type_display }}</span>
+                        </td>
+                        <td>
+                            {{ visitor.visit_date|date:"M d, Y" }}
+                            <br><small class="text-muted">{{ visitor.visit_date|time:"H:i" }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ visitor.visit_duration_minutes }} min</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ visitor.purpose|truncatechars:40 }}</div>
+                            {% if visitor.notes %}
+                                <small class="text-muted">{{ visitor.notes|truncatechars:30 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visitor.is_approved %}
+                                <span class="badge bg-success">Approved</span>
+                                <br><small class="text-muted">by {{ visitor.authorized_by.get_full_name|default:visitor.authorized_by.username }}</small>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'prison:visitor_detail' visitor.id %}" class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'prison:inmate_detail' visitor.inmate.id %}" class="btn btn-outline-info" title="View Inmate">
+                                    <i class="bi bi-person"></i>
+                                </a>
+                                <a href="{% url 'prison:inmate_visitors' visitor.inmate.id %}" class="btn btn-outline-success" title="View Inmate Visitors">
+                                    <i class="bi bi-people"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                            No visitor logs found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Visitor filtering
+    function filterVisitors() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (typeFilter && row.dataset.type !== typeFilter) {
+                show = false;
+            }
+            
+            if (dateFilter && row.dataset.date !== dateFilter) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Search functionality
+    function searchVisitors() {
+        const query = document.getElementById('searchVisitor').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Event listeners
+    document.getElementById('typeFilter').addEventListener('change', filterVisitors);
+    document.getElementById('dateFilter').addEventListener('change', filterVisitors);
+    
+    document.getElementById('searchVisitor').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchVisitors();
+        }
+    });
+
+
+</script>
+{% endblock %}

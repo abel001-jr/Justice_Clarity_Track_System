@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inmate Programs - Prison Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-mortarboard me-2"></i>
+                    Inmate Programs
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'prison:program_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Create New Program
+                    </a>
+                </div>
+            </div>
+
+<!-- Filters and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchProgram" placeholder="Search programs...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchPrograms()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="typeFilter">
+                    <option value="">All Program Types</option>
+                    <option value="education">Education</option>
+                    <option value="vocational">Vocational Training</option>
+                    <option value="counseling">Counseling</option>
+                    <option value="therapy">Therapy</option>
+                    <option value="work">Work Program</option>
+                    <option value="religious">Religious Program</option>
+                    <option value="recreation">Recreation</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="enrolled">Enrolled</option>
+                    <option value="completed">Completed</option>
+                    <option value="dropped">Dropped</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Programs Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Program ID</th>
+                        <th>Inmate</th>
+                        <th>Program Name</th>
+                        <th>Type</th>
+                        <th>Timeline</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Instructor</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for program in programs %}
+                    <tr data-type="{{ program.program_type }}" data-status="{{ program.status }}">
+                        <td><strong>#{{ program.id }}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-secondary rounded-circle p-2 me-2">
+                                    <i class="bi bi-person text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ program.inmate.get_full_name }}</div>
+                                    <small class="text-muted">ID: {{ program.inmate.inmate_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ program.program_name }}</div>
+                            <small class="text-muted">{{ program.description|truncatechars:50 }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ program.get_program_type_display }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">Start: {{ program.start_date|date:"M d, Y" }}</div>
+                            <small class="text-muted">End: {{ program.expected_end_date|date:"M d, Y" }}</small>
+                            {% if program.actual_end_date %}
+                                <br><small class="text-success">Completed: {{ program.actual_end_date|date:"M d, Y" }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: {{ program.progress_percentage }}%">
+                                    {{ program.progress_percentage }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if program.status == 'enrolled' %}
+                                <span class="badge bg-primary">Enrolled</span>
+                            {% elif program.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                                {% if program.certificate_earned %}
+                                    <br><small class="text-success">Certificate Earned</small>
+                                {% endif %}
+                            {% elif program.status == 'dropped' %}
+                                <span class="badge bg-danger">Dropped</span>
+                            {% elif program.status == 'suspended' %}
+                                <span class="badge bg-warning">Suspended</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if program.instructor %}
+                                {{ program.instructor }}
+                            {% else %}
+                                <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'prison:program_detail' program.id %}" class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button class="btn btn-outline-info" title="View Inmate" onclick="viewInmate({{ program.inmate.id }})">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                                <button class="btn btn-outline-success" title="View Inmate Programs" onclick="viewInmatePrograms({{ program.inmate.id }})">
+                                    <i class="bi bi-book"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-book-x fs-1 d-block mb-2"></i>
+                            No programs found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Program filtering
+    function filterPrograms() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (typeFilter && row.dataset.type !== typeFilter) {
+                show = false;
+            }
+            
+            if (statusFilter && row.dataset.status !== statusFilter) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Search functionality
+    function searchPrograms() {
+        const query = document.getElementById('searchProgram').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Event listeners
+    document.getElementById('typeFilter').addEventListener('change', filterPrograms);
+    document.getElementById('statusFilter').addEventListener('change', filterPrograms);
+    
+    document.getElementById('searchProgram').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchPrograms();
+        }
+    });
+
+    // View functions
+    function viewInmate(inmateId) {
+        window.location.href = `/prison/inmates/${inmateId}/`;
+    }
+
+    function viewInmatePrograms(inmateId) {
+        window.location.href = `/prison/inmates/${inmateId}/programs/`;
+    }
+</script>
+{% endblock %}

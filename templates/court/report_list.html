@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Case Reports - Court Clerk{% endblock %}
+
+{% block page_title %}Case Reports{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-file-earmark-text me-2"></i>
+            Case Reports
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'court:report_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchReport" placeholder="Search reports...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="searchReports()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="typeFilter">
+                        <option value="">All Report Types</option>
+                        <option value="final">Final Report</option>
+                        <option value="interim">Interim Report</option>
+                        <option value="appeal">Appeal Report</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="filterReports()">
+                        <i class="bi bi-funnel me-2"></i>
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Case</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Submitted By</th>
+                            <th>Submission Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr data-type="{{ report.report_type }}" data-status="{% if report.is_approved %}approved{% else %}pending{% endif %}">
+                            <td><strong>#{{ report.id }}</strong></td>
+                            <td>
+                                <div class="fw-bold">{{ report.case.case_number }}</div>
+                                <small class="text-muted">{{ report.case.title|truncatechars:40 }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ report.title|truncatechars:50 }}</div>
+                                <small class="text-muted">{{ report.content|truncatechars:60 }}</small>
+                            </td>
+                            <td>
+                                {% if report.report_type == 'final' %}
+                                    <span class="badge bg-success">{{ report.get_report_type_display }}</span>
+                                {% elif report.report_type == 'interim' %}
+                                    <span class="badge bg-warning">{{ report.get_report_type_display }}</span>
+                                {% elif report.report_type == 'appeal' %}
+                                    <span class="badge bg-danger">{{ report.get_report_type_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary rounded-circle p-2 me-2">
+                                        <i class="bi bi-person text-white"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ report.submitted_by.get_full_name }}</div>
+                                        <small class="text-muted">{{ report.submitted_by.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ report.submission_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if report.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                    {% if report.approved_by %}
+                                        <br><small class="text-muted">by {{ report.approved_by.get_full_name }}</small>
+                                    {% endif %}
+                                    {% if report.approval_date %}
+                                        <br><small class="text-muted">{{ report.approval_date|date:"M d, Y" }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'court:report_detail' report.id %}" class="btn btn-outline-primary" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'court:case_detail' report.case.id %}" class="btn btn-outline-info" title="View Case">
+                                        <i class="bi bi-folder"></i>
+                                    </a>
+                                    {% if not report.is_approved %}
+                                    <button class="btn btn-outline-success" title="Approve" onclick="approveReport({{ report.id }})">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="bi bi-file-earmark-x fs-1 d-block mb-2"></i>
+                                No reports found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Report filtering
+    function filterReports() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (typeFilter && row.dataset.type !== typeFilter) {
+                show = false;
+            }
+            
+            if (statusFilter && row.dataset.status !== statusFilter) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Search functionality
+    function searchReports() {
+        const query = document.getElementById('searchReport').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Approve report
+    function approveReport(reportId) {
+        if (confirm('Are you sure you want to approve this report?')) {
+            // This would typically send an AJAX request to approve the report
+            alert('Report approval functionality will be implemented in the backend.');
+        }
+    }
+
+    // Event listeners
+    document.getElementById('typeFilter').addEventListener('change', filterReports);
+    document.getElementById('statusFilter').addEventListener('change', filterReports);
+    
+    document.getElementById('searchReport').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchReports();
+        }
+    });
+</script>
+{% endblock %}

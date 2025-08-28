@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}Visitor Details - Justice Clarity{% endblock %}
+{% block page_title %}Visitor Details{% endblock %}
+
+{% block sidebar_nav %}
+{{ block.super }}
+<div class="nav-item">
+    <a href="{% url 'prison:dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:visitor_list' %}" class="nav-link active">
+        <i class="bi bi-person-check"></i>
+        Visitors
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:program_list' %}" class="nav-link">
+        <i class="bi bi-book"></i>
+        Programs
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:release_list' %}" class="nav-link">
+        <i class="bi bi-calendar-event"></i>
+        Releases
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Visitor Details</h2>
+    <div class="btn-group">
+        <a href="{% url 'prison:visitor_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Visitors
+        </a>
+        <a href="{% url 'prison:inmate_detail' visitor.inmate.id %}" class="btn btn-info">
+            <i class="bi bi-person me-2"></i>View Inmate
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Visitor Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Visitor Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Visitor Name</label>
+                        <p class="form-control-plaintext">{{ visitor.visitor_name }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">ID Number</label>
+                        <p class="form-control-plaintext">{{ visitor.visitor_id_number|default:"Not provided" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Relationship</label>
+                        <p class="form-control-plaintext">{{ visitor.relationship }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Visit Type</label>
+                        <span class="badge bg-info">{{ visitor.get_visit_type_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visit Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Visit Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Visit Date & Time</label>
+                        <p class="form-control-plaintext">
+                            {{ visitor.visit_date|date:"F d, Y" }}
+                            <br><small class="text-muted">{{ visitor.visit_date|time:"H:i" }}</small>
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Duration</label>
+                        <p class="form-control-plaintext">
+                            <span class="badge bg-secondary">{{ visitor.visit_duration_minutes }} minutes</span>
+                        </p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Purpose</label>
+                        <p class="form-control-plaintext">{{ visitor.purpose }}</p>
+                    </div>
+                    {% if visitor.notes %}
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Additional Notes</label>
+                        <p class="form-control-plaintext">{{ visitor.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Authorization -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Authorization & Approval</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Approval Status</label>
+                        <p class="form-control-plaintext">
+                            {% if visitor.is_approved %}
+                                <span class="badge bg-success">Approved</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending Approval</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Authorized By</label>
+                        <p class="form-control-plaintext">
+                            {% if visitor.authorized_by %}
+                                {{ visitor.authorized_by.get_full_name|default:visitor.authorized_by.username }}
+                            {% else %}
+                                <span class="text-muted">Not specified</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Log Created</label>
+                        <p class="form-control-plaintext">
+                            {{ visitor.created_at|date:"M d, Y" }}
+                            <br><small class="text-muted">{{ visitor.created_at|time:"H:i" }}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Inmate Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Inmate Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-secondary rounded-circle p-3 me-3">
+                        <i class="bi bi-person text-white"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ visitor.inmate.get_full_name }}</div>
+                        <small class="text-muted">ID: {{ visitor.inmate.inmate_id }}</small>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <strong>Status:</strong>
+                    {% if visitor.inmate.status == 'active' %}
+                        <span class="badge bg-success">Active</span>
+                    {% elif visitor.inmate.status == 'released' %}
+                        <span class="badge bg-primary">Released</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ visitor.inmate.get_status_display }}</span>
+                    {% endif %}
+                </div>
+                <div class="mb-2">
+                    <strong>Case Number:</strong> {{ visitor.inmate.case_number }}
+                </div>
+                <div class="mb-2">
+                    <strong>Assigned Officer:</strong>
+                    {% if visitor.inmate.assigned_officer %}
+                        {{ visitor.inmate.assigned_officer.get_full_name|default:visitor.inmate.assigned_officer.username }}
+                    {% else %}
+                        <span class="text-muted">Unassigned</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'prison:inmate_detail' visitor.inmate.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-person me-2"></i>View Inmate Details
+                    </a>
+                    <a href="{% url 'prison:inmate_visitors' visitor.inmate.id %}" class="btn btn-outline-info">
+                        <i class="bi bi-people me-2"></i>View All Inmate Visitors
+                    </a>
+                    <a href="{% url 'prison:visitor_create' %}" class="btn btn-outline-success">
+                        <i class="bi bi-person-plus me-2"></i>Log Another Visit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

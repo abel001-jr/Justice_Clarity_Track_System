@@ -1,0 +1,454 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report Details - {{ report.title }}{% endblock %}
+
+{% block page_title %}Report Details{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        
+        
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Report Details</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:report_list' %}" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Reports
+                    </a>
+                    <a href="{% url 'court:case_detail' report.case.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-folder me-2"></i>View Case
+                    </a>
+                </div>
+            </div>
+
+            <!-- Report Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Report Information</h5>
+                                <div>
+                                    <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'submitted' %}primary{% elif report.status == 'under_review' %}warning{% elif report.status == 'approved' %}success{% elif report.status == 'rejected' %}danger{% else %}secondary{% endif %} fs-6">
+                                        {{ report.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Report ID:</strong> <span class="badge bg-secondary">#{{ report.id }}</span></p>
+                                    <p><strong>Title:</strong> {{ report.title }}</p>
+                                    <p><strong>Type:</strong> 
+                                        <span class="badge bg-info">{{ report.get_report_type_display }}</span>
+                                    </p>
+                                    <p><strong>Priority:</strong> 
+                                        <span class="badge bg-{% if report.priority == 'high' %}danger{% elif report.priority == 'medium' %}warning{% elif report.priority == 'urgent' %}dark{% else %}info{% endif %}">
+                                            {{ report.get_priority_display }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Case Number:</strong> 
+                                        <a href="{% url 'court:case_detail' report.case.id %}">{{ report.case.case_number }}</a>
+                                    </p>
+                                    <p><strong>Case Title:</strong> {{ report.case.title }}</p>
+                                    <p><strong>Submitted By:</strong> {{ report.submitted_by.get_full_name|default:report.submitted_by.username }}</p>
+                                    <p><strong>Submission Date:</strong> {{ report.submission_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Content -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Content</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if report.summary %}
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Executive Summary</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ report.summary|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Report Content</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ report.content|linebreaks }}
+                                </div>
+                            </div>
+
+                            {% if report.findings %}
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Key Findings</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ report.findings|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if report.recommendations %}
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Recommendations</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ report.recommendations|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if report.notes %}
+                            <div class="mb-4">
+                                <label class="form-label"><strong>Additional Notes</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ report.notes|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Details -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><strong>Submission Information</strong></label>
+                                        <p class="mb-1">
+                                            <i class="bi bi-calendar-event me-2"></i>
+                                            <strong>Date:</strong> {{ report.submission_date|date:"l, F d, Y" }}
+                                        </p>
+                                        {% if report.due_date %}
+                                        <p class="mb-1">
+                                            <i class="bi bi-calendar-check me-2"></i>
+                                            <strong>Due Date:</strong> {{ report.due_date|date:"M d, Y" }}
+                                        </p>
+                                        {% endif %}
+                                        <p class="mb-1">
+                                            <i class="bi bi-person me-2"></i>
+                                            <strong>Submitted By:</strong> {{ report.submitted_by.get_full_name|default:report.submitted_by.username }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><strong>Assignment & Status</strong></label>
+                                        {% if report.assigned_to %}
+                                        <p class="mb-1">
+                                            <i class="bi bi-person-check me-2"></i>
+                                            <strong>Assigned To:</strong> {{ report.assigned_to.get_full_name|default:report.assigned_to.username }}
+                                        </p>
+                                        {% endif %}
+                                        <p class="mb-1">
+                                            <i class="bi bi-flag me-2"></i>
+                                            <strong>Priority:</strong> 
+                                            <span class="badge bg-{% if report.priority == 'high' %}danger{% elif report.priority == 'medium' %}warning{% elif report.priority == 'urgent' %}dark{% else %}info{% endif %}">
+                                                {{ report.get_priority_display }}
+                                            </span>
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <strong>Status:</strong> 
+                                            <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'submitted' %}primary{% elif report.status == 'under_review' %}warning{% elif report.status == 'approved' %}success{% elif report.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                                {{ report.get_status_display }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            {% if report.attachments %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Attachments</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for attachment in report.attachments.all %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-file-earmark-text fs-1 text-primary mb-2"></i>
+                                            <h6 class="card-title">{{ attachment.name|truncatechars:30 }}</h6>
+                                            <p class="card-text small text-muted">{{ attachment.size|filesizeformat }}</p>
+                                            <a href="{{ attachment.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                                <i class="bi bi-download me-1"></i>Download
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Status Management -->
+            {% if report.status == 'submitted' or report.status == 'under_review' %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Status Management</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-success btn-lg w-100 mb-2" onclick="updateReportStatus('{{ report.id }}', 'approved')">
+                                        <i class="bi bi-check-circle me-2"></i>Approve Report
+                                    </button>
+                                    <p class="text-muted small">Approve this report for official use</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-warning btn-lg w-100 mb-2" onclick="updateReportStatus('{{ report.id }}', 'under_review')">
+                                        <i class="bi bi-clock me-2"></i>Mark Under Review
+                                    </button>
+                                    <p class="text-muted small">Mark for further review and consideration</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-danger btn-lg w-100 mb-2" onclick="updateReportStatus('{{ report.id }}', 'rejected')">
+                                        <i class="bi bi-x-circle me-2"></i>Reject Report
+                                    </button>
+                                    <p class="text-muted small">Reject with reason for revision</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <a href="{% url 'court:case_detail' report.case.id %}" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-folder me-2"></i>View Case
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="{% url 'court:evidence_list' report.case.id %}" class="btn btn-outline-info w-100">
+                                        <i class="bi bi-folder2-open me-2"></i>View Evidence
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="{% url 'court:hearing_list' %}" class="btn btn-outline-warning w-100">
+                                        <i class="bi bi-calendar me-2"></i>View Hearings
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button type="button" class="btn btn-outline-secondary w-100" onclick="printReport()">
+                                        <i class="bi bi-printer me-2"></i>Print Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Timeline -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Timeline</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Report Created</h6>
+                                        <p class="timeline-text">{{ report.submission_date|date:"M d, Y H:i" }}</p>
+                                        <p class="timeline-text">Created by {{ report.submitted_by.get_full_name|default:report.submitted_by.username }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if report.status == 'submitted' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-info"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Report Submitted</h6>
+                                        <p class="timeline-text">Submitted for review and approval</p>
+                                    </div>
+                                </div>
+                                {% elif report.status == 'under_review' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-warning"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Under Review</h6>
+                                        <p class="timeline-text">Currently being reviewed by authorized personnel</p>
+                                    </div>
+                                </div>
+                                {% elif report.status == 'approved' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-success"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Report Approved</h6>
+                                        <p class="timeline-text">Approved for official use</p>
+                                    </div>
+                                </div>
+                                {% elif report.status == 'rejected' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-danger"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Report Rejected</h6>
+                                        <p class="timeline-text">Rejected and requires revision</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #dee2e6;
+}
+
+.timeline-content {
+    padding-left: 20px;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.timeline-text {
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+</style>
+
+<script>
+function updateReportStatus(reportId, status) {
+    if (confirm(`Are you sure you want to mark this report as ${status}?`)) {
+        // This would typically make an AJAX call to update the status
+        // For now, we'll just show a success message
+        alert(`Report status updated to ${status}`);
+        location.reload();
+    }
+}
+
+function printReport() {
+    // This would typically open a print dialog for the report
+    window.print();
+}
+</script>
+{% endblock %}

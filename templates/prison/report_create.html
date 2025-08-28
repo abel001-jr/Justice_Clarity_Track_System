@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Report - Justice Clarity{% endblock %}
+{% block page_title %}Create New Report{% endblock %}
+
+{% block sidebar_nav %}
+{{ block.super }}
+<div class="nav-item">
+    <a href="{% url 'prison:dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:visitor_list' %}" class="nav-link">
+        <i class="bi bi-person-check"></i>
+        Visitors
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:program_list' %}" class="nav-link">
+        <i class="bi bi-book"></i>
+        Programs
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:release_list' %}" class="nav-link">
+        <i class="bi bi-calendar-event"></i>
+        Releases
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Create New Report</h2>
+    <a href="{% url 'prison:report_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Reports
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Report Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="inmate_id" class="form-label">Inmate <span class="text-danger">*</span></label>
+                        <select class="form-select" id="inmate_id" name="inmate_id" required>
+                            <option value="">Select an inmate...</option>
+                            {% for inmate in inmates %}
+                            <option value="{{ inmate.id }}" {% if selected_inmate_id == inmate.id %}selected{% endif %}>
+                                {{ inmate.inmate_id }} - {{ inmate.get_full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="report_type" class="form-label">Report Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="report_type" name="report_type" required>
+                                <option value="regular">Regular Report</option>
+                                <option value="behavioral">Behavioral Report</option>
+                                <option value="medical">Medical Report</option>
+                                <option value="incident">Incident Report</option>
+                                <option value="disciplinary">Disciplinary Report</option>
+                                <option value="urgent">Urgent Report</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Report Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title" required 
+                               placeholder="Brief, descriptive title for the report">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Report Content <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="content" name="content" rows="6" required 
+                                  placeholder="Provide detailed information about the incident, behavior, or observation..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="recommendations" class="form-label">Recommendations</label>
+                        <textarea class="form-control" id="content" name="recommendations" rows="3" 
+                                  placeholder="Any recommendations for actions, follow-up, or disciplinary measures..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="incident_date" class="form-label">Incident Date & Time (if applicable)</label>
+                        <input type="datetime-local" class="form-control" id="incident_date" name="incident_date">
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'prison:report_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-file-earmark-plus me-2"></i>Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Report Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-primary">Report Types</h6>
+                    <ul class="list-unstyled small">
+                        <li><strong>Regular:</strong> Routine observations and updates</li>
+                        <li><strong>Behavioral:</strong> Changes in inmate behavior</li>
+                        <li><strong>Medical:</strong> Health-related incidents</li>
+                        <li><strong>Incident:</strong> Security or safety incidents</li>
+                        <li><strong>Disciplinary:</strong> Rule violations</li>
+                        <li><strong>Urgent:</strong> Immediate attention required</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-warning">Priority Levels</h6>
+                    <ul class="list-unstyled small">
+                        <li><strong>Low:</strong> Routine updates</li>
+                        <li><strong>Medium:</strong> Standard incidents</li>
+                        <li><strong>High:</strong> Serious incidents</li>
+                        <li><strong>Urgent:</strong> Immediate action needed</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Urgent reports are automatically flagged for immediate review by supervisors.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set current date/time for incident date
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('incident_date').value = now.toISOString().slice(0, 16);
+    
+    // Auto-set priority to urgent if report type is urgent
+    document.getElementById('report_type').addEventListener('change', function() {
+        if (this.value === 'urgent') {
+            document.getElementById('priority').value = 'urgent';
+        }
+    });
+</script>
+{% endblock %}

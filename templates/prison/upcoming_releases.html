@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upcoming Releases - Prison Management{% endblock %}
+{% block page_title %}Upcoming Releases{% endblock %}
+
+{# Navigation is now handled by base.html based on user role #}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-door-open me-2"></i>
+            Upcoming Releases
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'prison:release_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back to Release List
+            </a>
+            <a href="{% url 'prison:release_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Schedule Release
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Releases List -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-door-open me-2"></i>
+                            Upcoming Releases ({{ inmates|length }})
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="filterReleases('all')">All</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="filterReleases('urgent')">This Week</button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="filterReleases('soon')">Next Week</button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="filterReleases('month')">This Month</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if inmates %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Inmate</th>
+                                        <th>Release Date</th>
+                                        <th>Days Left</th>
+                                        <th>Status</th>
+                                        <th>Assigned Officer</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for inmate in inmates %}
+                                    <tr class="release-row" data-days-left="{{ inmate.get_days_until_release }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if inmate.photo %}
+                                                    <img src="{{ inmate.photo.url }}" alt="Inmate photo" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-person text-white"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ inmate.get_full_name }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">ID: {{ inmate.inmate_id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>{{ inmate.expected_release_date|date:"M d, Y" }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ inmate.expected_release_date|date:"l" }}</small>
+                                        </td>
+                                        <td>
+                                            {% with days_left=inmate.get_days_until_release %}
+                                                {% if days_left <= 7 %}
+                                                    <span class="badge bg-danger">{{ days_left }} days</span>
+                                                {% elif days_left <= 14 %}
+                                                    <span class="badge bg-warning">{{ days_left }} days</span>
+                                                {% else %}
+                                                    <span class="badge bg-info">{{ days_left }} days</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if inmate.status == 'active' %}bg-success{% elif inmate.status == 'medical' %}bg-warning{% elif inmate.status == 'transferred' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                {{ inmate.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if inmate.assigned_officer %}
+                                                <small>{{ inmate.assigned_officer.get_full_name }}</small>
+                                            {% else %}
+                                                <small class="text-muted">Not assigned</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-outline-primary" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'prison:inmate_release' inmate.id %}" class="btn btn-outline-success" title="Process Release">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </a>
+                                                <a href="{% url 'prison:release_create' %}?inmate_id={{ inmate.id }}" class="btn btn-outline-warning" title="Edit Release">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-door-open display-1 text-muted"></i>
+                            <h5 class="mt-3">No Upcoming Releases</h5>
+                            <p class="text-muted">There are no inmates scheduled for release in the next 30 days.</p>
+                            <a href="{% url 'prison:release_create' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Schedule Release
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Release Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Release Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-primary">{{ inmates|length }}</span>
+                            </div>
+                            <small class="text-muted">Total Releases</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-danger">{{ inmates|selectattr:"get_days_until_release"|selectattr:"get_days_until_release"|list|length }}</span>
+                            </div>
+                            <small class="text-muted">This Week</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-warning">{{ inmates|selectattr:"get_days_until_release"|selectattr:"get_days_until_release"|list|length }}</span>
+                            </div>
+                            <small class="text-muted">Next Week</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2">
+                                <span class="h4 text-info">{{ inmates|selectattr:"get_days_until_release"|selectattr:"get_days_until_release"|list|length }}</span>
+                            </div>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'prison:release_create' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Schedule Release
+                        </a>
+                        <a href="{% url 'prison:release_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-list me-2"></i>
+                            All Releases
+                        </a>
+                        <a href="{% url 'prison:inmate_list' %}" class="btn btn-outline-info">
+                            <i class="bi bi-people me-2"></i>
+                            All Inmates
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Release Guidelines -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Release Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                            <strong>This Week:</strong> Immediate action required
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-clock text-warning me-2"></i>
+                            <strong>Next Week:</strong> Prepare documentation
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-calendar text-info me-2"></i>
+                            <strong>This Month:</strong> Begin planning
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>Process:</strong> Complete all required forms
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterReleases(timeframe) {
+    const rows = document.querySelectorAll('.release-row');
+    const today = new Date();
+    const oneWeek = 7;
+    const twoWeeks = 14;
+    const oneMonth = 30;
+    
+    rows.forEach(row => {
+        const daysLeft = parseInt(row.dataset.daysLeft);
+        let show = false;
+        
+        switch(timeframe) {
+            case 'all':
+                show = true;
+                break;
+            case 'urgent':
+                show = daysLeft <= oneWeek;
+                break;
+            case 'soon':
+                show = daysLeft > oneWeek && daysLeft <= twoWeeks;
+                break;
+            case 'month':
+                show = daysLeft > twoWeeks && daysLeft <= oneMonth;
+                break;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+    
+    // Update button states
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize with all releases shown
+    document.querySelector('.btn-group .btn:first-child').classList.add('active');
+    
+    // Auto-refresh every 5 minutes
+    setInterval(function() {
+        location.reload();
+    }, 300000);
+});
+</script>
+{% endblock %}

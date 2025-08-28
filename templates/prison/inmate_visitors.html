@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ inmate.get_full_name }} - Visitors - Justice Clarity{% endblock %}
+{% block page_title %}Inmate Visitors{% endblock %}
+
+{% block sidebar_nav %}
+{{ block.super }}
+<div class="nav-item">
+    <a href="{% url 'prison:dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-people"></i>
+        Inmates
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:report_list' %}" class="nav-link">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:visitor_list' %}" class="nav-link">
+        <i class="bi bi-person-check"></i>
+        Visitors
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:program_list' %}" class="nav-link">
+        <i class="bi bi-book"></i>
+        Programs
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:release_list' %}" class="nav-link">
+        <i class="bi bi-calendar-event"></i>
+        Releases
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>Visitors for {{ inmate.get_full_name }}</h2>
+        <p class="text-muted mb-0">Inmate ID: {{ inmate.inmate_id }} | Case: {{ inmate.case_number }}</p>
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'prison:inmate_detail' inmate.id %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Inmate
+        </a>
+        <a href="{% url 'prison:visitor_create' %}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Log New Visit
+        </a>
+    </div>
+</div>
+
+<!-- Inmate Summary -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="bg-secondary rounded-circle p-3 d-inline-block mb-2">
+                        <i class="bi bi-person text-white fs-4"></i>
+                    </div>
+                    <h6 class="mb-1">{{ inmate.get_full_name }}</h6>
+                    <small class="text-muted">{{ inmate.gender|title }}, {{ inmate.date_of_birth|date:"Y" }}</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h4 class="text-primary mb-1">{{ visitors|length }}</h4>
+                    <small class="text-muted">Total Visits</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h4 class="text-success mb-1">{{ visitors|dictsort:"visit_date"|slice:":1"|length }}</h4>
+                    <small class="text-muted">Recent Visits</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <h4 class="text-info mb-1">{{ inmate.visitor_logs.count }}</h4>
+                    <small class="text-muted">Unique Visitors</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchVisitor" placeholder="Search visitors...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchVisitors()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="typeFilter">
+                    <option value="">All Visit Types</option>
+                    <option value="family">Family Visit</option>
+                    <option value="legal">Legal Visit</option>
+                    <option value="official">Official Visit</option>
+                    <option value="medical">Medical Visit</option>
+                    <option value="religious">Religious Visit</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visitors Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Visit ID</th>
+                        <th>Visitor</th>
+                        <th>Visit Type</th>
+                        <th>Date & Time</th>
+                        <th>Duration</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in visitors %}
+                    <tr data-type="{{ visitor.visit_type }}" data-status="{% if visitor.is_approved %}approved{% else %}pending{% endif %}">
+                        <td><strong>#{{ visitor.id }}</strong></td>
+                        <td>
+                            <div class="fw-bold">{{ visitor.visitor_name }}</div>
+                            <small class="text-muted">{{ visitor.relationship }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ visitor.get_visit_type_display }}</span>
+                        </td>
+                        <td>
+                            {{ visitor.visit_date|date:"M d, Y" }}
+                            <br><small class="text-muted">{{ visitor.visit_date|time:"H:i" }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ visitor.visit_duration_minutes }} min</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ visitor.purpose|truncatechars:40 }}</div>
+                            {% if visitor.notes %}
+                                <small class="text-muted">{{ visitor.notes|truncatechars:30 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visitor.is_approved %}
+                                <span class="badge bg-success">Approved</span>
+                                {% if visitor.authorized_by %}
+                                    <br><small class="text-muted">by {{ visitor.authorized_by.get_full_name|default:visitor.authorized_by.username }}</small>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'prison:visitor_detail' visitor.id %}" class="btn btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'prison:visitor_list' %}" class="btn btn-outline-info" title="View All Visitors">
+                                    <i class="bi bi-list"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                            No visitors found for this inmate
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Visitor filtering
+    function filterVisitors() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            if (typeFilter && row.dataset.type !== typeFilter) {
+                show = false;
+            }
+            
+            if (statusFilter && row.dataset.status !== statusFilter) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Search functionality
+    function searchVisitors() {
+        const query = document.getElementById('searchVisitor').value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr[data-type]');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // Event listeners
+    document.getElementById('typeFilter').addEventListener('change', filterVisitors);
+    document.getElementById('statusFilter').addEventListener('change', filterVisitors);
+    
+    document.getElementById('searchVisitor').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchVisitors();
+        }
+    });
+</script>
+{% endblock %}

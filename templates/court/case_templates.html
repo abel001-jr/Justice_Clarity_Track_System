@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Case Templates - Court Clerk{% endblock %}
+
+{% block page_title %}Case Templates{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i class="bi bi-file-earmark-text me-2"></i>
+            Case Templates
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'court:case_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create Custom Case
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Template Categories -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-collection me-2"></i>
+                        Choose a Template
+                    </h5>
+                    <p class="text-muted mb-0">Select a template to quickly create a new case with pre-filled information</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for template in case_templates %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="template-card h-100" data-template-id="{{ template.id }}">
+                                <div class="template-header bg-{{ template.color }} text-white">
+                                    <div class="template-icon">
+                                        <i class="bi {{ template.icon }} fs-1"></i>
+                                    </div>
+                                    <div class="template-info">
+                                        <h5 class="mb-1">{{ template.name }}</h5>
+                                        <span class="badge bg-light text-dark">{{ template.type|title }}</span>
+                                    </div>
+                                </div>
+                                <div class="template-body">
+                                    <p class="text-muted">{{ template.description }}</p>
+                                    <div class="template-preview">
+                                        <small class="text-muted">Pre-filled fields:</small>
+                                        <ul class="list-unstyled mt-2">
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>Case Type: {{ template.fields.case_type|title }}</li>
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>Priority: {{ template.fields.priority|title }}</li>
+                                            {% if template.fields.plaintiff_name %}
+                                            <li><i class="bi bi-check-circle text-success me-2"></i>Plaintiff: {{ template.fields.plaintiff_name }}</li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="template-footer">
+                                    <button class="btn btn-outline-{{ template.color }} w-100" onclick="useTemplate('{{ template.id }}')">
+                                        <i class="bi bi-plus-circle me-2"></i>
+                                        Use This Template
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-lightning-charge fs-1 mb-3"></i>
+                    <h4>Quick Start</h4>
+                    <p class="mb-0">Templates save time and ensure consistency</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle fs-1 mb-3"></i>
+                    <h4>Standardized</h4>
+                    <p class="mb-0">Pre-defined fields for common case types</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-gear fs-1 mb-3"></i>
+                    <h4>Customizable</h4>
+                    <p class="mb-0">Modify templates to fit specific needs</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Template Data (Hidden) -->
+<div id="templateData" style="display: none;">
+    {% for template in case_templates %}
+    <div data-template-id="{{ template.id }}" data-template-data="{{ template.fields|safe }}"></div>
+    {% endfor %}
+</div>
+
+<style>
+.template-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.template-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.template-icon {
+    flex-shrink: 0;
+}
+
+.template-info h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.template-body {
+    padding: 1.5rem;
+    background: #f8f9fa;
+}
+
+.template-preview ul li {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.template-footer {
+    padding: 1rem 1.5rem;
+    background: white;
+    border-top: 1px solid #e9ecef;
+}
+
+.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+}
+
+.bg-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+}
+
+.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%) !important;
+}
+</style>
+
+<script>
+function useTemplate(templateId) {
+    // Get template data
+    const templateElement = document.querySelector(`[data-template-id="${templateId}"]`);
+    const templateData = JSON.parse(templateElement.getAttribute('data-template-data'));
+    
+    // Store template data in sessionStorage for the case creation form
+    sessionStorage.setItem('selectedTemplate', JSON.stringify(templateData));
+    
+    // Redirect to case creation form
+    window.location.href = "{% url 'court:case_create' %}";
+}
+
+// Auto-fill form when coming from template
+document.addEventListener('DOMContentLoaded', function() {
+    const templateData = sessionStorage.getItem('selectedTemplate');
+    if (templateData) {
+        // Clear the stored template data
+        sessionStorage.removeItem('selectedTemplate');
+        
+        // Show success message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="bi bi-check-circle me-2"></i>
+            Template loaded successfully! The case creation form has been pre-filled.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+    }
+});
+</script>
+{% endblock %}

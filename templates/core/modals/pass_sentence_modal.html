@@ -1,0 +1,344 @@
+<!-- Pass Sentence Modal -->
+<div class="modal fade" id="passSentenceModal" tabindex="-1" aria-labelledby="passSentenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="passSentenceModalLabel">
+                    <i class="bi bi-gavel me-2"></i>
+                    Pass Sentence
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sentenceForm" method="POST" action="{% url 'court:case_sentence' case_id=0 %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="sentenceCaseId" name="case_id">
+                    
+                    <!-- Case Selection Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-folder me-2"></i>
+                                        Select Case for Sentencing
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <select class="form-select" id="caseSelect" name="case_id" required>
+                                                <option value="">Choose a case for sentencing...</option>
+                                                {% for case in my_cases %}
+                                                    {% if case.status == 'in_progress' %}
+                                                    <option value="{{ case.id }}" 
+                                                            data-plaintiff="{{ case.plaintiff }}"
+                                                            data-defendant="{{ case.defendant }}"
+                                                            data-case-type="{{ case.get_case_type_display }}"
+                                                            data-filing-date="{{ case.filing_date|date:'M d, Y' }}">
+                                                        {{ case.case_number }} - {{ case.title|truncatechars:50 }}
+                                                    </option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-outline-primary w-100" onclick="refreshCaseList()">
+                                                <i class="bi bi-arrow-clockwise me-2"></i>
+                                                Refresh Cases
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Case Information Display -->
+                    <div class="row mb-4" id="caseInfoSection" style="display: none;">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Case Information
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Plaintiff:</label>
+                                                <div id="casePlaintiff" class="text-muted"></div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Case Type:</label>
+                                                <div id="caseType" class="text-muted"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Defendant:</label>
+                                                <div id="caseDefendant" class="text-muted"></div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Filing Date:</label>
+                                                <div id="caseFilingDate" class="text-muted"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sentencing Form -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Verdict Section -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-journal-text me-2"></i>
+                                        Court Verdict
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="verdict" class="form-label">Verdict</label>
+                                        <textarea class="form-control" id="verdict" name="verdict" rows="4" required 
+                                                  placeholder="Enter the court's verdict and legal reasoning..."></textarea>
+                                        <div class="form-text">Provide a clear and detailed explanation of the court's decision.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="verdictType" class="form-label">Verdict Type</label>
+                                        <select class="form-select" id="verdictType" name="verdict_type" required>
+                                            <option value="">Select verdict type...</option>
+                                            <option value="guilty">Guilty</option>
+                                            <option value="not_guilty">Not Guilty</option>
+                                            <option value="dismissed">Case Dismissed</option>
+                                            <option value="settled">Settled Out of Court</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sentence Section -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-gavel me-2"></i>
+                                        Sentence Details
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="sentence" class="form-label">Sentence</label>
+                                        <textarea class="form-control" id="sentence" name="sentence" rows="4" required 
+                                                  placeholder="Enter the detailed sentence..."></textarea>
+                                        <div class="form-text">Provide comprehensive sentencing details including duration, conditions, and requirements.</div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="sentenceType" class="form-label">Sentence Type</label>
+                                                <select class="form-select" id="sentenceType" name="sentence_type" required>
+                                                    <option value="">Select sentence type...</option>
+                                                    <option value="prison">Prison Sentence</option>
+                                                    <option value="probation">Probation</option>
+                                                    <option value="fine">Fine Only</option>
+                                                    <option value="community_service">Community Service</option>
+                                                    <option value="suspended">Suspended Sentence</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="decisionDate" class="form-label">Decision Date</label>
+                                                <input type="date" class="form-control" id="decisionDate" name="decision_date" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Financial Penalties -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-currency-dollar me-2"></i>
+                                        Financial Penalties
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="fineAmount" class="form-label">Fine Amount</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="fineAmount" name="fine_amount" 
+                                                   step="0.01" min="0" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="restitutionAmount" class="form-label">Restitution Amount</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="restitutionAmount" name="restitution_amount" 
+                                                   step="0.01" min="0" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="courtCosts" class="form-label">Court Costs</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control" id="courtCosts" name="court_costs" 
+                                                   step="0.01" min="0" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sentence Duration -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-calendar-range me-2"></i>
+                                        Sentence Duration
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="mb-3">
+                                                <label for="years" class="form-label">Years</label>
+                                                <input type="number" class="form-control" id="years" name="years" min="0" max="100">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="mb-3">
+                                                <label for="months" class="form-label">Months</label>
+                                                <input type="number" class="form-control" id="months" name="months" min="0" max="12">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="mb-3">
+                                                <label for="days" class="form-label">Days</label>
+                                                <input type="number" class="form-control" id="days" name="days" min="0" max="31">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Conditions -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-list-check me-2"></i>
+                                        Additional Conditions
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="probation" name="probation">
+                                            <label class="form-check-label" for="probation">
+                                                Probation Required
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="communityService" name="community_service">
+                                            <label class="form-check-label" for="communityService">
+                                                Community Service Required
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="counseling" name="counseling">
+                                            <label class="form-check-label" for="counseling">
+                                                Counseling Required
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="drugTest" name="drug_test">
+                                            <label class="form-check-label" for="drugTest">
+                                                Drug Testing Required
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="noContact" name="no_contact">
+                                            <label class="form-check-label" for="noContact">
+                                                No Contact Order
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Cancel
+                </button>
+                <button type="submit" form="sentenceForm" class="btn btn-primary">
+                    <i class="bi bi-gavel me-2"></i>
+                    Pass Sentence
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const caseSelect = document.getElementById('caseSelect');
+    const caseInfoSection = document.getElementById('caseInfoSection');
+    
+    // Handle case selection
+    caseSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const caseId = this.value;
+        
+        if (caseId) {
+            // Update hidden input
+            document.getElementById('sentenceCaseId').value = caseId;
+            
+            // Show case information
+            document.getElementById('casePlaintiff').textContent = selectedOption.dataset.plaintiff;
+            document.getElementById('caseDefendant').textContent = selectedOption.dataset.defendant;
+            document.getElementById('caseType').textContent = selectedOption.dataset.caseType;
+            document.getElementById('caseFilingDate').textContent = selectedOption.dataset.filingDate;
+            
+            caseInfoSection.style.display = 'block';
+        } else {
+            caseInfoSection.style.display = 'none';
+        }
+    });
+    
+    // Set today's date as default
+    document.getElementById('decisionDate').valueAsDate = new Date();
+});
+
+function refreshCaseList() {
+    // Reload the page to refresh case list
+    location.reload();
+}
+</script>

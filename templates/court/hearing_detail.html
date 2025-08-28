@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hearing Details - {{ hearing.case.case_number }}{% endblock %}
+
+{% block page_title %}Hearing Details{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-item">
+    <a href="{% url 'core:clerk_dashboard' %}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:case_list' %}" class="nav-link {% if 'case' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-folder"></i>
+        Cases
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_list' %}" class="nav-link {% if 'hearing' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-calendar"></i>
+        Hearings
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_list' %}" class="nav-link {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="bi bi-file-text"></i>
+        Reports
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'prison:inmate_list' %}" class="nav-link">
+        <i class="bi bi-building"></i>
+        Inmates
+    </a>
+</div>
+
+<hr class="my-3">
+
+<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Quick Actions</span>
+</h6>
+<div class="nav-item">
+    <a href="{% url 'court:case_create' %}" class="nav-link">
+        <i class="bi bi-plus-circle"></i>
+        Create Case
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:hearing_create' %}" class="nav-link">
+        <i class="bi bi-calendar-plus"></i>
+        Schedule Hearing
+    </a>
+</div>
+<div class="nav-item">
+    <a href="{% url 'court:report_create' %}" class="nav-link">
+        <i class="bi bi-file-earmark-text"></i>
+        Create Report
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Hearing Details</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'court:hearing_list' %}" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Hearings
+                    </a>
+                    <a href="{% url 'court:hearing_edit' hearing.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit Hearing
+                    </a>
+                </div>
+            </div>
+
+            <!-- Hearing Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Hearing Information</h5>
+                                <div>
+                                    <span class="badge bg-{% if hearing.status == 'scheduled' %}primary{% elif hearing.status == 'in_progress' %}warning{% elif hearing.status == 'completed' %}success{% elif hearing.status == 'cancelled' %}danger{% else %}secondary{% endif %} fs-6">
+                                        {{ hearing.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Hearing ID:</strong> <span class="badge bg-secondary">#{{ hearing.id }}</span></p>
+                                    <p><strong>Hearing Type:</strong> 
+                                        <span class="badge bg-info">{{ hearing.get_hearing_type_display }}</span>
+                                    </p>
+                                    <p><strong>Scheduled Date:</strong> {{ hearing.scheduled_date|date:"M d, Y" }}</p>
+                                    <p><strong>Scheduled Time:</strong> {{ hearing.scheduled_time|time:"H:i" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Duration:</strong> {{ hearing.duration_minutes }} minutes</p>
+                                    <p><strong>Location:</strong> {{ hearing.location|default:"Not specified" }}</p>
+                                    <p><strong>Judge:</strong> {{ hearing.judge.get_full_name|default:hearing.judge.username|default:"Not assigned" }}</p>
+                                    <p><strong>Clerk:</strong> {{ hearing.clerk.get_full_name|default:hearing.clerk.username|default:"Not assigned" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Case Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Case Number:</strong> 
+                                        <a href="{% url 'court:case_detail' hearing.case.id %}">{{ hearing.case.case_number }}</a>
+                                    </p>
+                                    <p><strong>Case Type:</strong> {{ hearing.case.get_case_type_display }}</p>
+                                    <p><strong>Case Title:</strong> {{ hearing.case.title }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Case Status:</strong> 
+                                        <span class="badge bg-{% if hearing.case.status == 'pending' %}warning{% elif hearing.case.status == 'active' %}primary{% elif hearing.case.status == 'closed' %}success{% else %}secondary{% endif %}">
+                                            {{ hearing.case.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Case Priority:</strong> 
+                                        <span class="badge bg-{% if hearing.case.priority == 'high' %}danger{% elif hearing.case.priority == 'medium' %}warning{% else %}info{% endif %}">
+                                            {{ hearing.case.get_priority_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Filing Date:</strong> {{ hearing.case.filing_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hearing Details -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Hearing Details</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if hearing.description %}
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Description</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ hearing.description|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if hearing.notes %}
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Notes</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ hearing.notes|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if hearing.outcome %}
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Outcome</strong></label>
+                                <div class="border rounded p-3 bg-light">
+                                    {{ hearing.outcome|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hearing Schedule -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Schedule Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><strong>Date & Time</strong></label>
+                                        <p class="mb-0">
+                                            <i class="bi bi-calendar-event me-2"></i>
+                                            {{ hearing.scheduled_date|date:"l, F d, Y" }}
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="bi bi-clock me-2"></i>
+                                            {{ hearing.scheduled_time|time:"H:i" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><strong>Duration & Location</strong></label>
+                                        <p class="mb-0">
+                                            <i class="bi bi-stopwatch me-2"></i>
+                                            {{ hearing.duration_minutes }} minutes
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="bi bi-geo-alt me-2"></i>
+                                            {{ hearing.location|default:"Location not specified" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participants -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Participants</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Court Personnel</h6>
+                                    <ul class="list-unstyled">
+                                        {% if hearing.judge %}
+                                        <li class="mb-2">
+                                            <i class="bi bi-person-badge text-primary me-2"></i>
+                                            <strong>Judge:</strong> {{ hearing.judge.get_full_name|default:hearing.judge.username }}
+                                        </li>
+                                        {% endif %}
+                                        {% if hearing.clerk %}
+                                        <li class="mb-2">
+                                            <i class="bi bi-person-workspace text-info me-2"></i>
+                                            <strong>Clerk:</strong> {{ hearing.clerk.get_full_name|default:hearing.clerk.username }}
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Case Participants</h6>
+                                    <ul class="list-unstyled">
+                                        {% if hearing.case.participants %}
+                                        <li class="mb-2">
+                                            <i class="bi bi-people text-success me-2"></i>
+                                            <strong>Participants:</strong> {{ hearing.case.participants }}
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <a href="{% url 'court:case_detail' hearing.case.id %}" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-folder me-2"></i>View Case
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="{% url 'court:evidence_list' hearing.case.id %}" class="btn btn-outline-info w-100">
+                                        <i class="bi bi-folder2-open me-2"></i>View Evidence
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="{% url 'court:hearing_edit' hearing.id %}" class="btn btn-outline-warning w-100">
+                                        <i class="bi bi-pencil me-2"></i>Edit Hearing
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button type="button" class="btn btn-outline-success w-100" onclick="updateHearingStatus('{{ hearing.id }}', 'completed')">
+                                        <i class="bi bi-check-circle me-2"></i>Mark Complete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hearing Timeline -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Hearing Timeline</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Hearing Scheduled</h6>
+                                        <p class="timeline-text">Scheduled for {{ hearing.scheduled_date|date:"M d, Y" }} at {{ hearing.scheduled_time|time:"H:i" }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if hearing.status == 'in_progress' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-warning"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Hearing in Progress</h6>
+                                        <p class="timeline-text">Currently being conducted</p>
+                                    </div>
+                                </div>
+                                {% elif hearing.status == 'completed' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-success"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Hearing Completed</h6>
+                                        <p class="timeline-text">Successfully concluded</p>
+                                    </div>
+                                </div>
+                                {% elif hearing.status == 'cancelled' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-danger"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Hearing Cancelled</h6>
+                                        <p class="timeline-text">Cancelled or postponed</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #dee2e6;
+}
+
+.timeline-content {
+    padding-left: 20px;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.timeline-text {
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+</style>
+
+<script>
+function updateHearingStatus(hearingId, status) {
+    if (confirm(`Are you sure you want to mark this hearing as ${status}?`)) {
+        // This would typically make an AJAX call to update the status
+        // For now, we'll just show a success message
+        alert(`Hearing status updated to ${status}`);
+        location.reload();
+    }
+}
+</script>
+{% endblock %}
