@@ -1,0 +1,10 @@
+Django
+djangorestframework
+django-crispy-forms
+crispy-bootstrap5
+django-cors-headers
+Pillow
+python-decouple
+whitenoise
+gunicorn
+django-extensions
